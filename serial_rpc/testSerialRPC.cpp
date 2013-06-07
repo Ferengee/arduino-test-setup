@@ -13,13 +13,13 @@ public:
     Serial.print(m_arg1);  
     Serial.print(m_arg2);
   }
-  virtual void init(){ 
+  virtual bool init(){ 
     getNextValue(&m_arg1); 
-    getNextValue('O', (char *)&m_arg2, &m_arg2len);
+    return getNextValue('O', (char *)&m_arg2, &m_arg2len);
   }
   TestMethod(){
     m_name = "Test"; 
-    m_arg2len = 30;
+    m_arg2len = 10;
   }
 private:
   int m_arg1;
@@ -31,11 +31,15 @@ TestMethod t1 = TestMethod();
 
 int main(){
   Serial.println("test");
-  hm.init();
-  Serial.println(hm.getName());
-  hm.execute();
+  if(hm.init()){
+    Serial.println("init...");
+    Serial.println(hm.getName());
+    hm.execute();
+  }
   Serial.println("test class");
-  t1.init();
+  if(!t1.init())
+    t1.printError();
   t1.execute();
-  
+ Serial.println("done...");
+  for(;;){}
 }

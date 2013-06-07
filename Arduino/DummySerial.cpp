@@ -5,7 +5,8 @@ using namespace std;
 DummySerial::DummySerial()
 {
   initscr();
-  timeout(1);
+  timeout(5000000);
+  m_available = false;
 }
 
 /*
@@ -50,21 +51,24 @@ size_t DummySerial::println(uint8_t c){
 
 size_t DummySerial::readBytes(char * buffer, int max){
   int i;
-  for (i=0; i < max; i++){
-    buffer[i] = (char)i + 64;
+  int c;
+  while (c = getch() > 0 && i < max){
+    buffer[i] = (char)c;
+    i++;
   }
   return i;
 }
 
 size_t DummySerial::readBytesUntil(char delim, char * buffer, int max){
   int i;
-  for (i=0; i < max; i++){
-    
-    char r = (char)i + 64;
-    if (r == delim)
+  int c;
+  while (c = getch() > 0 && i < max){
+    if ((char)c == delim){
+      ungetch(c);
       break;
-    
-    buffer[i] = r;
+    }
+    buffer[i] = (char)c;
+    i++;
   }
   return i;
 }
