@@ -10,13 +10,15 @@
 
 using namespace std;
 
-class DummySerial 
+class Stream 
 {
 public:  
-  DummySerial();
+  Stream();
   void begin(int rate=0) { 0; }
-  bool available(void) {return false;}
-  int read(void){ return 0;}
+  bool available(void) {return m_available;}
+  int read(void){ return getch();}
+  int peek(void){ int r = getch(); ungetch(r); return r;}
+  int timedRead(void) {return read();}
   int parseInt(){return 7;}
   float parseFloat(){return 13.2;}
   size_t readBytes(char * buffer, int max);
@@ -29,8 +31,17 @@ public:
   size_t println(const char str[]);
   size_t print(uint8_t c);
   size_t println(uint8_t c);
+private:
+  bool m_available;
+  
 
 };
+
+class DummySerial : public Stream
+{
+  
+};
+
 extern DummySerial Serial;
 
 #endif

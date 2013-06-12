@@ -2,7 +2,7 @@
 
 using namespace std;
 
-DummySerial::DummySerial()
+Stream::Stream()
 {
   initscr();
   timeout(5000000);
@@ -10,13 +10,13 @@ DummySerial::DummySerial()
 }
 
 /*
-size_t DummySerial::print(basic_stringstream<char>::__string_type  str)
+size_t Stream::print(basic_stringstream<char>::__string_type  str)
 {
   printw(str);
   return 0;
 }
 
-size_t DummySerial::println(basic_stringstream<char>::__string_type  str)
+size_t Stream::println(basic_stringstream<char>::__string_type  str)
 {
   print(str);
   print("\n");
@@ -24,32 +24,32 @@ size_t DummySerial::println(basic_stringstream<char>::__string_type  str)
 }
 */
 
-size_t DummySerial::print(const char str[])
+size_t Stream::print(const char str[])
 {
   printw(str);
   refresh();
   return 0;
 
 }
-size_t DummySerial::println(const char str[]){
+size_t Stream::println(const char str[]){
   print(str);
   print("\n");
   return 0;
 }
 
 
-size_t DummySerial::print(uint8_t c)
+size_t Stream::print(uint8_t c)
 {
   printw("%d", c);
   return 0;
 }
-size_t DummySerial::println(uint8_t c){
+size_t Stream::println(uint8_t c){
   print(c);
   print("\n");
   return 0;
 }
 
-size_t DummySerial::readBytes(char * buffer, int max){
+size_t Stream::readBytes(char * buffer, int max){
   int i;
   int c;
   while (c = getch() > 0 && i < max){
@@ -59,7 +59,7 @@ size_t DummySerial::readBytes(char * buffer, int max){
   return i;
 }
 
-size_t DummySerial::readBytesUntil(char delim, char * buffer, int max){
+size_t Stream::readBytesUntil(char delim, char * buffer, int max){
   int i;
   int c;
   while (c = getch() > 0 && i < max){
