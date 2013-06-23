@@ -49,5 +49,6 @@ public:
   virtual ReaderState * process(StreamWrapper * in, CharBufferManager * out);
   
   ReaderState * normalState;
+  ReaderState * errorState;
 
 };

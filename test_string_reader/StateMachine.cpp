@@ -9,7 +9,6 @@ ReaderState * ReaderStartState::process(StreamWrapper * in, CharBufferManager * 
   while (result == this){
     nextToken = in->peek();
     if(nextToken == -1){
-      in->println("|");
       in->read();
       break;
     }
@@ -30,19 +29,24 @@ ReaderState * ReaderStartState::process(StreamWrapper * in, CharBufferManager * 
 
 ReaderState * ReaderNormalState::process(StreamWrapper * in, CharBufferManager * out){
   ReaderState * result = this;
-  char nextToken = in->peek();
-  switch(nextToken){
-    case '"':
-      in->read();
-      result = endState;
+  int nextToken;
+  
+  while (result == this){
+    nextToken = in->read();
+    if(nextToken == -1)
       break;
-    case '\\':
-      in->read();
-      result = escapedState;
-      break;
-    default:
-      out->putchar(nextToken);
-      in->read();
+    
+    switch(nextToken){
+      case '"':
+        result = endState;
+        break;
+      case '\\':
+        result = escapedState;
+        break;
+      default:
+        if(!out->putchar(nextToken))
+          result = errorState;
+    }
   }
   return result;
 }
@@ -50,29 +54,35 @@ ReaderState * ReaderNormalState::process(StreamWrapper * in, CharBufferManager *
 
 ReaderState * ReaderEscapedState::process(StreamWrapper * in, CharBufferManager * out){
   ReaderState * result = normalState;
-  char nextToken =  in->read();
+  int nextToken = in->read();
+  if(nextToken == -1)
+    return this;
+  bool writeSucces = false;
   switch(nextToken){
     case 'a':
-      out->putchar('\a');
+      writeSucces = out->putchar('\a');
       break;
     case 'b':
-      out->putchar('\b');
+      writeSucces = out->putchar('\b');
       break;    
     case 'f':
-      out->putchar('\f');
+      writeSucces = out->putchar('\f');
       break;
     case 'n':
-      out->putchar('\n');
+      writeSucces = out->putchar('\n');
       break;
     case 'r':
-      out->putchar('\r');
+      writeSucces = out->putchar('\r');
       break;
     case 't':
-      out->putchar('\t');
+      writeSucces = out->putchar('\t');
       break;
     default:
-      out->putchar(nextToken);
+      writeSucces = out->putchar(nextToken);
+    
   }
+  if (!writeSucces)
+    result = errorState;
   return result;
 }
 
@@ -103,6 +113,8 @@ int main(void)
   normal.endState = &endstate;
   
   escaped.normalState = &normal;
+  escaped.errorState = &error;
+
   
   nextState = &reader;
   while (nextState != &error){
