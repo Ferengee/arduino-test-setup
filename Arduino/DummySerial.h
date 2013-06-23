@@ -14,7 +14,7 @@ class Stream
 {
 public:  
   Stream();
-  void begin(int rate=0) { 0; }
+  void begin(int rate=0) { rate; }
   bool available(void) {return m_available;}
   int read(void){ return getch();}
   int peek(void){ int r = getch(); ungetch(r); return r;}

@@ -5,7 +5,7 @@ using namespace std;
 Stream::Stream()
 {
   initscr();
-  timeout(5000000);
+  timeout(5000);
   m_available = false;
 }
 
@@ -41,6 +41,8 @@ size_t Stream::println(const char str[]){
 size_t Stream::print(uint8_t c)
 {
   printw("%d", c);
+  refresh();
+
   return 0;
 }
 size_t Stream::println(uint8_t c){
@@ -52,7 +54,7 @@ size_t Stream::println(uint8_t c){
 size_t Stream::readBytes(char * buffer, int max){
   int i;
   int c;
-  while (c = getch() > 0 && i < max){
+  while ((c = getch()) > 0 && i < max){
     buffer[i] = (char)c;
     i++;
   }
@@ -62,7 +64,7 @@ size_t Stream::readBytes(char * buffer, int max){
 size_t Stream::readBytesUntil(char delim, char * buffer, int max){
   int i;
   int c;
-  while (c = getch() > 0 && i < max){
+  while ((c = getch()) > 0 && i < max){
     if ((char)c == delim){
       ungetch(c);
       break;
