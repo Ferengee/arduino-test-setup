@@ -12,16 +12,15 @@ ReaderState * ReaderStartState::process(StreamWrapper * in, CharBufferManager * 
       in->read();
       break;
     }
-    switch(nextToken){
-      case '"':
-        in->read();
-        result = normalState;
-        break;
-      case ' ':
-        in->read();
-        break;
-      default:
-        result = errorState;
+    if(nextToken == (int)startToken){
+      in->read();
+      result = normalState;  
+    }else if(nextToken == (int)' '){
+      in->read();
+    }else if(startToken == 0){
+      result = normalState;
+    }else{
+      result = errorState;
     }
   }
   return result;
@@ -36,16 +35,13 @@ ReaderState * ReaderNormalState::process(StreamWrapper * in, CharBufferManager *
     if(nextToken == -1)
       break;
     
-    switch(nextToken){
-      case '"':
-        result = endState;
-        break;
-      case '\\':
-        result = escapedState;
-        break;
-      default:
-        if(!out->putchar(nextToken))
-          result = errorState;
+    if(nextToken == (int)endToken){
+      result = endState;
+    }else if(nextToken == (int) '\\'){
+      result = escapedState;
+    }else{
+      if(!out->putchar(nextToken))
+        result = errorState;
     }
   }
   return result;
@@ -107,10 +103,12 @@ int main(void)
   
   reader.errorState = &error;
   reader.normalState = &normal;
+  reader.startToken = 0;
   
   normal.errorState = &error;
   normal.escapedState = &escaped;
   normal.endState = &endstate;
+  normal.endToken = '(';
   
   escaped.normalState = &normal;
   escaped.errorState = &error;
