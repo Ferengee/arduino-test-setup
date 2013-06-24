@@ -1,5 +1,5 @@
 #include "BufferManager.h"
-#include <DummySerial.h>
+#include <Arduino.h>
 
 /*
  * has the state machine to parse a specific format
@@ -15,9 +15,19 @@ class StreamParser
  * 
  * 
  */
-class StreamWrapper : public DummySerial
+class StreamWrapper
 {
+  
+public:
+  virtual int peek(){return _stream->peek();}
+  virtual int read(){return _stream->read();}
+  void setStream(Stream * stream){_stream = stream;}
+private:
+  Stream * _stream;
+  
 };
+
+
 
 class ReaderState
 {
