@@ -1,8 +1,6 @@
-#include <StateMachine.h>
+#include "StateMachine.h"
 
-
-  
-ReaderState * ReaderStartState::process(StreamWrapper * in, CharBufferManager * out){
+ReaderState * ReaderStartState::process(StreamWrapper * in, BufferManager * out){
   ReaderState * result = this;
   int nextToken;
   
@@ -26,7 +24,7 @@ ReaderState * ReaderStartState::process(StreamWrapper * in, CharBufferManager * 
   return result;
 }
 
-ReaderState * ReaderNormalState::process(StreamWrapper * in, CharBufferManager * out){
+ReaderState * ReaderNormalState::process(StreamWrapper * in, BufferManager * out){
   ReaderState * result = this;
   int nextToken;
   
@@ -48,7 +46,7 @@ ReaderState * ReaderNormalState::process(StreamWrapper * in, CharBufferManager *
 }
 
 
-ReaderState * ReaderEscapedState::process(StreamWrapper * in, CharBufferManager * out){
+ReaderState * ReaderEscapedState::process(StreamWrapper * in, BufferManager * out){
   ReaderState * result = normalState;
   int nextToken = in->read();
   if(nextToken == -1)
