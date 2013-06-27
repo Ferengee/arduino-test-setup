@@ -2,19 +2,13 @@
 #include <Arduino.h>
 
 /*
- * has the state machine to parse a specific format
+ * has a state machine to parse a specific format
  */
 class StreamParser
 {
   
 };
 
-/*
- * todo: implement wrapper as proxy
- * StreamWrapper HasA Stream, instead of IsA Stream
- * 
- * 
- */
 class StreamWrapper
 {
   
