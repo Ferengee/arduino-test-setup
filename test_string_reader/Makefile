@@ -1,5 +1,5 @@
 libs = -lncurses
-ggcflags = -g -Wall -fpermissive
+gccflags = -Wall -fpermissive -g
 cc = g++
 
 include_paths = ../Arduino . ../Arduino/libraries/MiniRPC
