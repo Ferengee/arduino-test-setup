@@ -38,7 +38,7 @@ bool IntBufferManager::putchar(char item){
         return true;
     }
   }
-  if (item >= '0' && item <= '9'){
+  if (isNumeric(item)){
     _buffer = _buffer * 10 + (item - '0') * _sign;  
   
     return true;
@@ -56,6 +56,7 @@ bool FloatBufferManager::putchar(char item){
     if(_isFraction){
       return false;
     }else{
+      _isFraction = true;
       return true; 
     }
   }

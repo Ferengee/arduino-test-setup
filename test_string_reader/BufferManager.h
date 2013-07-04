@@ -7,6 +7,8 @@ class BufferManager
 public:
   BufferManager(){}
   virtual bool putchar(char item){ return false;}
+  bool isNumeric(char item){ return item >= '0' && item <= '9';}
+
 };
 
 class CharBufferManager : public BufferManager
@@ -34,7 +36,6 @@ public:
   
   void init();
   int getBuffer(){ return (int)_buffer; }
-  
 protected:
 
   long _buffer;
