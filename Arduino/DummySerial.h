@@ -31,6 +31,11 @@ public:
   size_t println(const char str[]);
   size_t print(uint8_t c);
   size_t println(uint8_t c);
+  size_t println(int c);
+  size_t println(float c);
+  size_t print(int c);
+  size_t print(float c);
+
 private:
   bool m_available;
   

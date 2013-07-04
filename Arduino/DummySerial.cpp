@@ -45,7 +45,32 @@ size_t Stream::print(uint8_t c)
 
   return 0;
 }
+size_t Stream::print(int c)
+{
+  printw("%d", c);
+  refresh();
+
+  return 0;
+}
+size_t Stream::print(float c)
+{
+  printw("%f", c);
+  refresh();
+
+  return 0;
+}
 size_t Stream::println(uint8_t c){
+  print(c);
+  print("\n");
+  return 0;
+}
+size_t Stream::println(int c){
+  print(c);
+  print("\n");
+  return 0;
+}
+
+size_t Stream::println(float c){
   print(c);
   print("\n");
   return 0;
