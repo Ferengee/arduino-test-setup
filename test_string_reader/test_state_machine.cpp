@@ -1,58 +1,81 @@
-#include "StateMachine.h"
 #include <DummySerial.h>
+#include <MiniRPC.h>
+#include <StreamWrapper.h>
+
+#include <StateMachine.h>
+#include "BufferManager.h"
 
 
+CharBufferManager out = CharBufferManager();
+StringStreamParser sp = StringStreamParser();
+
+IntStreamParser ip = IntStreamParser();
+IntBufferManager number = IntBufferManager();
+
+FloatBufferManager decimal = FloatBufferManager();
+FloatStreamParser fp = FloatStreamParser();
 
 int main(void)
 {
   char output[40];
-  
   StreamWrapper in = StreamWrapper();
   in.setStream(&Serial);
-  
-  CharBufferManager bm = CharBufferManager();
-  bm.init(output, 40);
-  
-  ReaderStartState reader = ReaderStartState();
-  ReaderState error = ReaderEndState();
-  ReaderState endstate = ReaderEndState();
+  int state = 0;
 
-  ReaderNormalState normal = ReaderNormalState();
-  ReaderEscapedState escaped = ReaderEscapedState();
-  
-  ReaderState * nextState;
-  
-  reader.errorState = &error;
-  reader.normalState = &normal;
-  reader.startToken = 0;
-  
-  normal.errorState = &error;
-  normal.escapedState = &escaped;
-  normal.endState = &endstate;
-  normal.endToken = '(';
-  
-  escaped.normalState = &normal;
-  escaped.errorState = &error;
+
+
+  MiniRPCMethod m1 = MiniRPCMethod();
+  MiniRPCDispatcher d1 = MiniRPCDispatcher();
+  m1.dispatcher = &d1;
+   
+  out.init(output, 40);
+  Serial.println("input str:");
 
   
-  nextState = &reader;
-  while (nextState != &error){
-    nextState = nextState->process(&in, &bm);
-    if(nextState == &escaped)
-      Serial.print("'");
-    else if (nextState == &normal)
-      Serial.print("_");
-    else
-      Serial.print(".");
-    if(nextState == &endstate)
-      break;
+  sp.setStreamWrapper(&in);
+  sp.setBufferManager(&out);
+
+  while((state = sp.process()) == 0){
+    Serial.print("_"); 
   }
-  if(nextState == &error){
-    Serial.println(" Error");
+  if (state == -1){
+    Serial.println("Error");
   }else{
-    Serial.println(" Done");
+    Serial.println("Done");
+    out.terminateStr();
+    Serial.println(out.getBuffer());
   }
-  bm.terminateStr();
-  Serial.println(bm.getBuffer());
+  
+  number.init();
+  Serial.println("input number:");
+  ip.setStreamWrapper(&in);
+  ip.setBufferManager(&number);
+  while((state = ip.process()) == 0){
+    Serial.print("="); 
+  }
+  if (state == -1){
+    Serial.println("Error");
+  }else{
+    Serial.println("Done");
+    Serial.println(number.getBuffer());
+  }
+  in.read();
+  decimal.init();
+  Serial.println("input decimal:");
+  fp.setStreamWrapper(&in);
+  fp.setBufferManager(&decimal);
+  while((state = fp.process()) == 0){
+    Serial.print("+"); 
+  }
+  if (state == -1){
+    Serial.println("Error");
+  }else{
+    Serial.println("Done");
+     Serial.println(decimal.getBuffer());
+  }
+  
+  getch();
+  getch();
+  endwin();
   return 0;
 }
