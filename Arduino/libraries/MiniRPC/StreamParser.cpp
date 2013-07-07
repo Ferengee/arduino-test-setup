@@ -2,66 +2,64 @@
 
 
 StringStreamParser::StringStreamParser()
-{
-  reader = ReaderStartState();
-  error = ReaderEndState();
-  endstate = ReaderEndState();
-
-  normal = ReaderNormalState();
-  escaped = ReaderEscapedState();
-  
+{ 
   reader.errorState = &error;
   reader.normalState = &normal;
   reader.startToken = '"';
   
   normal.errorState = &error;
   normal.escapedState = &escaped;
-  normal.endState = &endstate;
+  normal.endState = &end;
   normal.endToken = '"';
   
   escaped.normalState = &normal;
   escaped.errorState = &error;
-
-  
   nextState = &reader;
 }
 
-int StreamParser::process()
+void StringStreamParser::reset()
 {
-    nextState = nextState->process(streamWrapper, bufferManager);
-    if (nextState == &error)
-      return -1;
-    if (nextState == &endstate)
-      return 1;
-    return 0;
+  nextState = &reader;
+}
+
+
+int StreamParser::process()
+{     
+  if(nextState == NULL)
+    exit(1);
+  nextState = nextState->process(streamWrapper, bufferManager);
+  if (nextState == errorState)
+    return -1;
+  if (nextState == endState)
+    return 1;
+  return 0;
 }
 
 IntStreamParser::IntStreamParser()
 {
-  reader = ReaderStartNumericState();
-  error = ReaderEndState();
-  endstate = ReaderEndState();
-  fraction = ReaderFractionState();
-  sign = ReaderSignedState();
-  value = ReaderValueState();
- 
   reader.valueState = &value;
-  reader.endState = &endstate;
+  reader.endState = &end;
   reader.fractionState = NULL;
   reader.signedState = &sign;
   reader.errorState = &error;
   
   value.fractionState = NULL;
-  value.endState = &endstate;
+  value.endState = &end;
 
   sign.fractionState = &fraction;
   sign.errorState = &error;
   sign.valueState = &value;
 
-  fraction.endState = &endstate;
+  fraction.endState = &end;
   
   nextState = &reader;
 }
+
+void IntStreamParser::reset()
+{
+  nextState = &reader;
+}
+
 
 FloatStreamParser::FloatStreamParser()
 {

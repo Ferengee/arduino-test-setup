@@ -1,6 +1,6 @@
 #ifndef StreamParser_h
 #define StreamParser_h
-#include "../../../test_string_reader/BufferManager.h"
+#include "BufferManager.h"
 #include "StreamWrapper.h"
 #include "StateMachine.h"
 
@@ -8,14 +8,21 @@ class StreamParser
 {
 public:
   int process();
-  StreamParser(){}
+  int test(){return nextState->_test;}
+  StreamParser(){ 
+    nextState = NULL;
+    errorState = &error;
+    endState = &end;
+  }
   
 protected:
   ReaderState * nextState;
   BufferManager * bufferManager;
   StreamWrapper * streamWrapper;
   ReaderState error;
-  ReaderState endstate;
+  ReaderState end;
+  ReaderState * errorState;
+  ReaderState * endState;
 
 };
 
@@ -25,6 +32,7 @@ public:
   StringStreamParser();
   void setBufferManager(CharBufferManager * manager){bufferManager = manager;}
   void setStreamWrapper(StreamWrapper * wrapper){streamWrapper = wrapper;}
+  void reset();
 
 protected:
 
@@ -41,6 +49,7 @@ public:
 
   void setBufferManager(IntBufferManager * manager){bufferManager = manager;}
   void setStreamWrapper(StreamWrapper * wrapper){streamWrapper = wrapper;}
+  void reset();
 
 protected:
   ReaderStartNumericState reader;
