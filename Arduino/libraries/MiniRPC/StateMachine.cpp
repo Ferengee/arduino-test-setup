@@ -39,7 +39,7 @@ ReaderState * ReaderNormalState::process(StreamWrapper * in, BufferManager * out
     }else if(nextToken == (int) '\\'){
       result = escapedState;
     }else{
-      if(!out->putchar(nextToken))
+      if(!out->write(nextToken))
         result = errorState;
     }
   }
@@ -55,25 +55,25 @@ ReaderState * ReaderEscapedState::process(StreamWrapper * in, BufferManager * ou
   bool writeSucces = false;
   switch(nextToken){
     case 'a':
-      writeSucces = out->putchar('\a');
+      writeSucces = out->write('\a');
       break;
     case 'b':
-      writeSucces = out->putchar('\b');
+      writeSucces = out->write('\b');
       break;    
     case 'f':
-      writeSucces = out->putchar('\f');
+      writeSucces = out->write('\f');
       break;
     case 'n':
-      writeSucces = out->putchar('\n');
+      writeSucces = out->write('\n');
       break;
     case 'r':
-      writeSucces = out->putchar('\r');
+      writeSucces = out->write('\r');
       break;
     case 't':
-      writeSucces = out->putchar('\t');
+      writeSucces = out->write('\t');
       break;
     default:
-      writeSucces = out->putchar(nextToken);
+      writeSucces = out->write(nextToken);
     
   }
   if (!writeSucces)
@@ -85,7 +85,7 @@ ReaderState * ReaderEscapedState::process(StreamWrapper * in, BufferManager * ou
 
 /*
  * x E {'+', '-'} => signedState, out.sign = x == - ? -1 : 1
- * x E {'0'..'9'} => valueState, out.putchar(x)
+ * x E {'0'..'9'} => valueState, out.write(x)
  * x E {'.'} and fractionState => fractionState, out.isFraction = true
  * else => errorState
  * 
@@ -104,15 +104,15 @@ ReaderState* ReaderStartNumericState::process(StreamWrapper* in, BufferManager* 
     }
     if(nextToken == '+' ||  nextToken == '-'){
       result = signedState;
-      out->putchar(nextToken);
+      out->write(nextToken);
       in->read();
     }else if(out->isNumeric(nextToken)){
       result = valueState;
-      out->putchar(nextToken);
+      out->write(nextToken);
       in->read();
     }else if(nextToken == '.' && fractionState != NULL){
       result = fractionState;
-      out->putchar(nextToken);
+      out->write(nextToken);
       in->read();
     }else {
       result = errorState; 
@@ -123,7 +123,7 @@ ReaderState* ReaderStartNumericState::process(StreamWrapper* in, BufferManager* 
 
 
 /*
- * x E {'0'..'9'} => this, out.putchar(x)
+ * x E {'0'..'9'} => this, out.write(x)
  * x E {'.'} and fractionState => fractionState, out.isFraction = true
  * elseif fractionState == null => errorState
  * else => endState
@@ -143,11 +143,11 @@ ReaderState* ReaderValueState::process(StreamWrapper* in, BufferManager* out)
     }
     if(out->isNumeric(nextToken)){
       result = this;
-      out->putchar(nextToken);
+      out->write(nextToken);
       in->read();
     }else if(nextToken == '.' && fractionState != NULL){
       result = fractionState;
-      out->putchar(nextToken); 
+      out->write(nextToken); 
       in->read();
     }else {
       result = endState; 
@@ -157,7 +157,7 @@ ReaderState* ReaderValueState::process(StreamWrapper* in, BufferManager* out)
 }
 
 /*
- *  x E {'0'..'9'} => this, out.putchar(x)
+ *  x E {'0'..'9'} => this, out.write(x)
  *  else => endState
  */
 
@@ -175,7 +175,7 @@ ReaderState* ReaderFractionState::process(StreamWrapper* in, BufferManager* out)
     }
     if(out->isNumeric(nextToken)){
       result = this;
-      out->putchar(nextToken);
+      out->write(nextToken);
       in->read();
     }else {
       result = endState; 
@@ -186,7 +186,7 @@ ReaderState* ReaderFractionState::process(StreamWrapper* in, BufferManager* out)
 }
 
 /*
- * x E {'0'..'9'} => valueState, out.putchar(x)
+ * x E {'0'..'9'} => valueState, out.write(x)
  * x E {'.'} and fractionState => fractionState, out.isFraction = true
  * 
  */

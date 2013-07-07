@@ -9,13 +9,21 @@
 class ReaderState
 {
 public:
-  virtual ReaderState * process(StreamWrapper * in, BufferManager * out){ return this;}  
+  ReaderState(){ _test=-1;}
+  virtual ReaderState * process(StreamWrapper * in, BufferManager * out){ return this;} 
+  int _test;
+  
 };
 
 class ReaderStartState : public ReaderState
 {
 public:
-  ReaderStartState(){ startToken = '"';}
+  ReaderStartState(){ 
+    startToken = '"';
+    errorState = NULL;
+    normalState = NULL;
+    _test = 1;
+  }
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
   
   ReaderState * errorState;
@@ -27,7 +35,13 @@ public:
 class ReaderNormalState : public ReaderState
 {
 public:
-  ReaderNormalState(){ endToken = '"';}
+  ReaderNormalState(){ 
+    endToken = '"';
+    errorState = NULL;
+    escapedState = NULL;
+    endState = NULL;
+    _test = 2;
+  }
 
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
   
@@ -37,16 +51,15 @@ public:
   int endToken;
 };
 
-class ReaderEndState : public ReaderState
-{
-
-};
-
 class ReaderEscapedState : public ReaderState
 {
 public:
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
-  
+  ReaderEscapedState(){
+    normalState = NULL;
+    errorState = NULL;
+    _test = 3;
+  }
   ReaderState * normalState;
   ReaderState * errorState;
 
@@ -58,6 +71,14 @@ public:
 class ReaderStartNumericState : public ReaderState
 {
 public:
+  ReaderStartNumericState(){
+    errorState = NULL;
+    endState = NULL;
+    signedState = NULL;
+    fractionState = NULL;
+    valueState = NULL;
+    _test = 10;
+  }
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
   ReaderState * errorState;
   ReaderState * endState;
@@ -70,6 +91,12 @@ public:
 class ReaderSignedState : public ReaderState
 {
 public:
+  ReaderSignedState(){
+    errorState = NULL;
+    fractionState = NULL;
+    valueState = NULL;
+    _test = 11;
+  }
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
   ReaderState * errorState;
   ReaderState * fractionState;
@@ -79,6 +106,11 @@ public:
 class ReaderValueState : public ReaderState
 {
 public:
+  ReaderValueState(){
+    endState = NULL;
+    fractionState = NULL;
+    _test = 12;
+  }
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
   ReaderState * endState;
   ReaderState * fractionState;
@@ -88,6 +120,11 @@ public:
 class ReaderFractionState : public ReaderState
 {
 public:
+  ReaderFractionState(){
+    endState = NULL;
+    _test = 13;
+    
+  }
   virtual ReaderState * process(StreamWrapper * in, BufferManager * out);
   ReaderState * endState;
 };
