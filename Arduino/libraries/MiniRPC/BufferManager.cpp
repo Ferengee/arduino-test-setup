@@ -1,6 +1,6 @@
 #include "BufferManager.h"
 
-bool CharBufferManager::putchar(char item){
+bool CharBufferManager::write(char item){
   if (sizeLeft() > 0){
     *_cursor = item; 
     _cursor++;
@@ -26,7 +26,7 @@ void CharBufferManager::terminateStr(){
 }
 
 /* no spaces allowed between sign and value */
-bool IntBufferManager::putchar(char item){
+bool IntBufferManager::write(char item){
   
   if(_sign == 0){
     if(item == '-'){
@@ -51,7 +51,7 @@ void IntBufferManager::init(){
   _sign = 0;
 }
 
-bool FloatBufferManager::putchar(char item){
+bool FloatBufferManager::write(char item){
   if(item == '.'){
     if(_isFraction){
       return false;
@@ -63,7 +63,7 @@ bool FloatBufferManager::putchar(char item){
     
   if(_isFraction)
     _fraction *= 0.1;
-  return IntBufferManager::putchar(item);
+  return IntBufferManager::write(item);
  
 }
 
