@@ -5,7 +5,7 @@ using namespace std;
 Stream::Stream()
 {
   initscr();
-  timeout(5000);
+  timeout(DUMMY_SERIAL_TIMEOUT);
   m_available = false;
 }
 
