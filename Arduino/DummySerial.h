@@ -1,5 +1,6 @@
 #ifndef DummySerial_h
 #define DummySerial_h
+#define DUMMY_SERIAL_TIMEOUT 50000
 
 #include <stdint.h>
 #include <stdio.h>
@@ -14,7 +15,7 @@ class Stream
 {
 public:  
   Stream();
-  void begin(int rate=0) { rate; }
+  void begin(int) { }
   bool available(void) {return m_available;}
   int read(void){ return getch();}
   int peek(void){ int r = getch(); ungetch(r); return r;}
