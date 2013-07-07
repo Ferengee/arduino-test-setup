@@ -17,17 +17,13 @@ FloatStreamParser fp = FloatStreamParser();
 
 int main(void)
 {
+  sp = StringStreamParser();
+  sp = StringStreamParser();
   char output[40];
   StreamWrapper in = StreamWrapper();
   in.setStream(&Serial);
   int state = 0;
-
-
-
-  MiniRPCMethod m1 = MiniRPCMethod();
-  MiniRPCDispatcher d1 = MiniRPCDispatcher();
-  m1.dispatcher = &d1;
-   
+  
   out.init(output, 40);
   Serial.println("input str:");
 
@@ -37,6 +33,8 @@ int main(void)
 
   while((state = sp.process()) == 0){
     Serial.print("_"); 
+    Serial.print(sp.test());
+    Serial.print("_");
   }
   if (state == -1){
     Serial.println("Error");
