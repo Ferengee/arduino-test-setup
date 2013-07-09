@@ -13,9 +13,13 @@ CharBufferManager charBufferManager = CharBufferManager();
 StringStreamParser stringStreamParser = StringStreamParser();
 char _test_value[30];
 */
+TestMethod tm;
+
 int main(void)
 {
   in.setStream(&Serial);
+  d1.registerMethod(&tm);
+
 /*
   stringStreamParser.setBufferManager(&charBufferManager);
   stringStreamParser.setStreamWrapper(&in);
