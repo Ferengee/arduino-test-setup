@@ -14,7 +14,6 @@ public:
     errorState = &error;
     endState = &end;
   }
-  
 protected:
   ReaderState * nextState;
   BufferManager * bufferManager;
@@ -30,6 +29,11 @@ class StringStreamParser : public StreamParser
 {
 public:
   StringStreamParser();
+  void configure(const char startToken, const char endToken){ 
+    reader.startToken = startToken;
+    normal.endToken = endToken;
+  }
+
   void setBufferManager(CharBufferManager * manager){bufferManager = manager;}
   void setStreamWrapper(StreamWrapper * wrapper){streamWrapper = wrapper;}
   void reset();
