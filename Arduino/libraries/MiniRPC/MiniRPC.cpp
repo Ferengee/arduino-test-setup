@@ -49,8 +49,8 @@ void MiniRPCDispatcher::select(MiniRPCMethod* method)
 {
   selected_method = method;
   //reset();
-  method->dispatcher = this;
-  method->init();
+  //method->dispatcher = this;
+  method->init(this);
   
 }
 
@@ -115,11 +115,13 @@ void MiniRPCMethod::pre_prepare()
   current_argument_index = -1;
 }
 
-void MiniRPCMethod::init()
+void MiniRPCMethod::init(MiniRPCDispatcher * dispatcher)
 {
   active_argument_state = MINIRPC_ARGUMENT_INIT;
   active_argument_index = 0;
   current_argument_index= 0;
+  this->dispatcher = dispatcher;
+  dispatcher->stringStreamParser.configure('"', '"');
 }
 
 
@@ -133,10 +135,54 @@ int MiniRPCMethod::getStage()
       
 }
 
+int MiniRPCMethod::stripTerminator()
+{
+  StreamWrapper * in = dispatcher->streamWrapper;
+  int terminator = 0; 
+  int progress = 1;
+  terminator = in->read();
+  while(terminator == ' ' || terminator == '\t' || terminator == '\n') 
+    terminator = in->read();
+
+  if (terminator == -1){
+    progress = 0;
+  } else if(terminator != ',' && terminator != ')'){  
+    active_argument_state = MINIRPC_ARGUMENT_ERROR;
+    progress = -1;
+  }
+  
+  return progress;
+}
+
+int MiniRPCMethod::getCleanup(int progress)
+{
+  switch(progress){
+    case 1:
+      active_argument_index = current_argument_index+1;
+      active_argument_state = MINIRPC_ARGUMENT_INIT;
+      break;
+    case -1:
+      active_argument_state = MINIRPC_ARGUMENT_ERROR;
+  }
+  return progress == 1;
+
+}
+
+
 bool MiniRPCMethod::get(char* buffer, int len)
 {
-  
-  int mg = getStage();
+  int progress = getStr(buffer, len);
+  //while(progress == 0){
+  //  progress = dispatcher->stringStreamParser.process();
+  //}
+  if(progress == 1)
+    progress = stripTerminator();
+  return getCleanup(progress);
+}
+
+int MiniRPCMethod::getStr(char* buffer, int len)
+{
+   int mg = getStage();
   switch(mg){
     case MINIRPC_ARGUMENT_SKIP:
       return false;
@@ -154,22 +200,16 @@ bool MiniRPCMethod::get(char* buffer, int len)
     *        update active_argument_index to current_argument_index + 1
     *        set active_argument_state to MINIRPC_ARGUMENT_INIT
     */
-  int progress = dispatcher->stringStreamParser.process();
-  while(progress == 0){
-    progress = dispatcher->stringStreamParser.process();
-  }
-  switch(progress){
-    case 1:
-      active_argument_index = current_argument_index+1;
-      active_argument_state = MINIRPC_ARGUMENT_INIT;
-      break;
-    case -1:
-      active_argument_state = MINIRPC_ARGUMENT_ERROR;
-  }
-  return progress == 1;
+  return dispatcher->stringStreamParser.process();
 }
 
-bool MiniRPCMethod::get(int arg)
+bool MethodMatcher::getMethodName(char* method_name, int len)
+{
+  int progress = getStr(method_name, len);
+  return getCleanup(progress);
+}
+
+bool MiniRPCMethod::get(int &arg)
 {
   int mg = getStage();
   switch(mg){
@@ -184,19 +224,15 @@ bool MiniRPCMethod::get(int arg)
  
 
   int progress = dispatcher->intStreamParser.process();
-  switch(progress){
-    case 1:
-      active_argument_index = current_argument_index+1;
-      active_argument_state = MINIRPC_ARGUMENT_INIT;
-      break;
-    case -1:
-      active_argument_state = MINIRPC_ARGUMENT_ERROR;
+  if(progress == 1){
+    arg = dispatcher->intBufferManager.getBuffer();
+    progress = stripTerminator();   
   }
-  return progress == 1;
+  return getCleanup(progress);
 }
 
 
-bool MiniRPCMethod::get(float arg)
+bool MiniRPCMethod::get(float &arg)
 {
   int mg = getStage();
   switch(mg){
@@ -210,15 +246,12 @@ bool MiniRPCMethod::get(float arg)
   }
 
   int progress = dispatcher->floatStreamParser.process();
-  switch(progress){
-    case 1:
-      active_argument_index = current_argument_index+1;
-      active_argument_state = MINIRPC_ARGUMENT_INIT;
-      break;
-    case -1:
-      active_argument_state = MINIRPC_ARGUMENT_ERROR;
+  if(progress == 1){
+    arg = dispatcher->floatBufferManager.getBuffer();
+    progress = stripTerminator();
+    
   }
-  return progress == 1;
+return getCleanup(progress);
 }
 
 /*
@@ -247,11 +280,17 @@ void MethodMatcher::execute()
 
 void MethodMatcher::prepare()
 {
-  if(get(_method_name, MAX_METHOD_NAME_LENGTH))
+  if(getMethodName(_method_name, MAX_METHOD_NAME_LENGTH))
   {
     _method_name_length = dispatcher->charBufferManager.used();
     dispatcher->charBufferManager.terminateStr();    
   }
   
+}
+
+void MethodMatcher::init(MiniRPCDispatcher * dispatcher)
+{
+    MiniRPCMethod::init(dispatcher);
+    dispatcher->stringStreamParser.configure(0, '(');
 }
 

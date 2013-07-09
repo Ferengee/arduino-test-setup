@@ -22,8 +22,8 @@ public:
   MiniRPCMethod();
   /* returns true if finished getting */
   bool get(char * buffer, int len);
-  bool get(int arg);
-  bool get(float arg);
+  bool get(int &arg);
+  bool get(float &arg);
   const char * getName(){ return _name; }
   void setName(const char * name){ _name = name;}
   virtual void execute(){}
@@ -31,7 +31,11 @@ public:
   void pre_prepare();
   bool ready();
   bool error(){return active_argument_state == MINIRPC_ARGUMENT_ERROR;}
-  void init();
+  virtual void init(MiniRPCDispatcher * dispatcher);
+protected:
+  int getStr(char* buffer, int len);
+  int getCleanup(int progress);
+
 private:
   const char * _name;
   // the argument (get call) which is currently beeing evaluated
@@ -40,6 +44,7 @@ private:
   int active_argument_state; // 0 => init, 1 => working, 2 => finished, -2 => error, -1 => skip
   int active_argument_index;
   int getStage();
+  int stripTerminator();
   
 };
 
@@ -70,10 +75,13 @@ class MethodMatcher : public MiniRPCMethod
 public:
   virtual void execute();
   virtual void prepare();
+  virtual void init(MiniRPCDispatcher * dispatcher);
   MethodMatcher();
 protected:
   char _method_name[MAX_METHOD_NAME_LENGTH];
   int _method_name_length;
+  bool getMethodName(char * _method_name, int len);
+
 };
 
 class MiniRPCDispatcher
