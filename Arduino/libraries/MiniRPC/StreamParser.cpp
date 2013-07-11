@@ -15,6 +15,7 @@ StringStreamParser::StringStreamParser()
   escaped.normalState = &normal;
   escaped.errorState = &error;
   nextState = &reader;
+  end._test = 900;
 }
 
 void StringStreamParser::reset()
@@ -25,8 +26,10 @@ void StringStreamParser::reset()
 
 int StreamParser::process()
 {     
-  if(nextState == NULL)
-    exit(1);
+  if(nextState == NULL){
+    return -1;
+  }
+  ReaderState * lastState = nextState;
   nextState = nextState->process(streamWrapper, bufferManager);
   if (nextState == errorState)
     return -1;
@@ -51,7 +54,7 @@ IntStreamParser::IntStreamParser()
   sign.valueState = &value;
 
   fraction.endState = &end;
-  
+
   nextState = &reader;
 }
 

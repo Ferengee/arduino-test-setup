@@ -19,7 +19,7 @@ protected:
   BufferManager * bufferManager;
   StreamWrapper * streamWrapper;
   ReaderState error;
-  ReaderState end;
+  ReaderEndState end;
   ReaderState * errorState;
   ReaderState * endState;
 
