@@ -8,7 +8,6 @@ ReaderState * ReaderStartState::process(StreamWrapper * in, BufferManager * out)
     nextToken = in->peek();
     if(nextToken == -1){
       result = this;
-      in->read();
       break;
     }
     if(nextToken == (int)startToken){
@@ -99,6 +98,10 @@ ReaderState* ReaderStartNumericState::process(StreamWrapper* in, BufferManager* 
     nextToken = in->peek();
     if(nextToken == -1){
       result = this;
+      break;
+    }
+    if(nextToken == ' '){
+      result = this;
       in->read();
       break;
     }
@@ -138,7 +141,6 @@ ReaderState* ReaderValueState::process(StreamWrapper* in, BufferManager* out)
     nextToken = in->peek();
     if(nextToken == -1){
       result = this;
-      in->read();
       break;
     }
     if(out->isNumeric(nextToken)){
@@ -170,7 +172,6 @@ ReaderState* ReaderFractionState::process(StreamWrapper* in, BufferManager* out)
     nextToken = in->peek();
     if(nextToken == -1){
       result = this;
-      in->read();
       break;
     }
     if(out->isNumeric(nextToken)){

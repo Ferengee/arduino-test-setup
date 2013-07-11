@@ -15,6 +15,13 @@ public:
   
 };
 
+class ReaderEndState : public ReaderState
+{
+public:
+  ReaderEndState(){ _test= 900;}
+  virtual ReaderState * process(StreamWrapper * in, BufferManager * out){ return this;}   
+};
+
 class ReaderStartState : public ReaderState
 {
 public:
