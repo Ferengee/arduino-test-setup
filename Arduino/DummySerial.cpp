@@ -6,7 +6,7 @@ Stream::Stream()
 {
   initscr();
   timeout(DUMMY_SERIAL_TIMEOUT);
-  m_available = false;
+  m_available = true;
 }
 
 /*
@@ -23,6 +23,10 @@ size_t Stream::println(basic_stringstream<char>::__string_type  str)
   return 0;
 }
 */
+void Stream::setTimeout(long unsigned int new_timeout)
+{
+  timeout(new_timeout);
+}
 
 size_t Stream::print(const char str[])
 {
@@ -59,6 +63,14 @@ size_t Stream::print(float c)
 
   return 0;
 }
+
+size_t Stream::print(char c)
+{
+  printw("%c", c);
+  refresh();
+
+  return 0;
+}
 size_t Stream::println(uint8_t c){
   print(c);
   print("\n");
@@ -71,6 +83,12 @@ size_t Stream::println(int c){
 }
 
 size_t Stream::println(float c){
+  print(c);
+  print("\n");
+  return 0;
+}
+
+size_t Stream::println(char c){
   print(c);
   print("\n");
   return 0;

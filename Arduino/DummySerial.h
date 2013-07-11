@@ -1,6 +1,6 @@
 #ifndef DummySerial_h
 #define DummySerial_h
-#define DUMMY_SERIAL_TIMEOUT 50000
+#define DUMMY_SERIAL_TIMEOUT 500
 
 #include <stdint.h>
 #include <stdio.h>
@@ -18,7 +18,13 @@ public:
   void begin(int) { }
   bool available(void) {return m_available;}
   int read(void){ return getch();}
-  int peek(void){ int r = getch(); ungetch(r); return r;}
+  int peek(void){ 
+    int r = getch(); 
+    if(r > -1)
+      ungetch(r); 
+    return r;
+  }
+  void setTimeout(unsigned long timeout);
   int timedRead(void) {return read();}
   int parseInt(){return 7;}
   float parseFloat(){return 13.2;}
@@ -34,8 +40,12 @@ public:
   size_t println(uint8_t c);
   size_t println(int c);
   size_t println(float c);
+  size_t println(char c);
+
   size_t print(int c);
   size_t print(float c);
+  size_t print(char c);
+
 
 private:
   bool m_available;
