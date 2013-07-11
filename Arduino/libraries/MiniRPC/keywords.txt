@@ -1,0 +1,5 @@
+StreamWrapper	KEYWORD1
+MiniRPCDispatcher	KEYWORD1
+MiniRPCMethod	KEYWORD1
+setStream	KEYWORD2
+registerMethod	KEYWORD2
