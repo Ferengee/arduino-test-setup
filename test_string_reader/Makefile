@@ -13,8 +13,8 @@ test_state_machine : test_state_machine.cpp BufferManager.o DummySerial.o StateM
 	$(cc) $(gccflags) test_state_machine.cpp BufferManager.o ../Arduino/libraries/MiniRPC/StreamParser.cpp ../Arduino/libraries/MiniRPC/StateMachine.o ../Arduino/DummySerial.o -o test_state_machine $(includes) $(libs)
 #g++ -Wall test_state_machine.cpp StateMachine.cpp BufferManager.cpp -I . -I ../Arduino ../Arduino/DummySerial.cpp ../Arduino/Arduino.cpp -l ncurses
 
-test_minirpc: test_minirpc.cpp BufferManager.o DummySerial.o StateMachine.o MiniRPC.o
-	$(cc) $(gccflags) test_minirpc.cpp BufferManager.o ../Arduino/libraries/MiniRPC/StreamParser.cpp ../Arduino/libraries/MiniRPC/MiniRPC.o ../Arduino/libraries/MiniRPC/StateMachine.o ../Arduino/DummySerial.o -o test_minirpc $(includes) $(libs)
+test_minirpc: test_minirpc.cpp BufferManager.o DummySerial.o StateMachine.o MiniRPC.o Arduino.o
+	$(cc) $(gccflags) test_minirpc.cpp ../Arduino/Arduino.o BufferManager.o ../Arduino/libraries/MiniRPC/StreamParser.cpp ../Arduino/libraries/MiniRPC/MiniRPC.o ../Arduino/libraries/MiniRPC/StateMachine.o ../Arduino/DummySerial.o -o test_minirpc $(includes) $(libs)
 
 
 StateMachine.o: ../Arduino/libraries/MiniRPC/StateMachine.cpp

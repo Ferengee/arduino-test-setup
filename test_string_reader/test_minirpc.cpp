@@ -1,10 +1,29 @@
-#include <DummySerial.h>
 #include <MiniRPC.h>
 #include <StreamWrapper.h>
 
 #include <StateMachine.h>
 #include "BufferManager.h"
 
+class TestMethod : public MiniRPCMethod
+{
+public:
+  TestMethod(){
+    setName("m");
+  }
+  virtual void prepare(){
+    get(arg1, 10);
+    get(arg2);
+  }
+  virtual void execute(){
+    Serial.print(getName());
+    Serial.print(":");
+    Serial.println(arg1);
+    Serial.println(arg2);
+  }
+private:
+  char arg1[10];
+  int arg2;
+};
 
 StreamWrapper in = StreamWrapper();
 MiniRPCDispatcher d1 = MiniRPCDispatcher(&in);
@@ -19,6 +38,7 @@ int main(void)
 {
   in.setStream(&Serial);
   d1.registerMethod(&tm);
+  Serial.setTimeout(1000);
 
 /*
   stringStreamParser.setBufferManager(&charBufferManager);
@@ -39,8 +59,9 @@ int main(void)
   }
   */
 
-  while(d1.update()){
-    ;
+  while(1){
+    d1.update();
+   // delay(500);
   }
     getch();
     getch();
