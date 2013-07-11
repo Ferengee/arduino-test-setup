@@ -7,6 +7,7 @@
 #define MINIRPC_ARGUMENT_INIT 0
 #define MINIRPC_ARGUMENT_WORKING 1
 #define MINIRPC_ARGUMENT_FINISHED 2
+#define MINIRPC_ARGUMENT_USAGE 3
 
 #include <Arduino.h>
 #include "StreamWrapper.h"
@@ -18,20 +19,28 @@ class MiniRPCDispatcher;
 class MiniRPCMethod
 {
 public:
-  MiniRPCDispatcher * dispatcher;
   MiniRPCMethod();
+  
+  virtual void prepare(){}
+  virtual void execute(){}
+  virtual void error();
+  
+  MiniRPCDispatcher * dispatcher;
+
   /* returns true if finished getting */
   bool get(char * buffer, int len);
   bool get(int &arg);
   bool get(float &arg);
   const char * getName(){ return _name; }
   void setName(const char * name){ _name = name;}
-  virtual void execute(){}
-  virtual void prepare(){}
+
   void pre_prepare();
-  bool ready();
-  bool error(){return active_argument_state == MINIRPC_ARGUMENT_ERROR;}
+  void post_prepare(){total_argument_count = current_argument_index + 1 ;}
+
+  bool isReady();
+  bool hasError(){return active_argument_state == MINIRPC_ARGUMENT_ERROR;}
   virtual void init(MiniRPCDispatcher * dispatcher);
+
 protected:
   int getStr(char* buffer, int len);
   int getCleanup(int progress);
@@ -43,32 +52,11 @@ private:
   // the argument which is allowed to read the stream to become complete
   int active_argument_state; // 0 => init, 1 => working, 2 => finished, -2 => error, -1 => skip
   int active_argument_index;
+  int total_argument_count;
   int getStage();
   int stripTerminator();
   
 };
-
-class TestMethod : public MiniRPCMethod
-{
-public:
-  TestMethod(){
-    setName("test.method");
-  }
-  virtual void prepare(){
-    get(arg1, 10);
-    get(arg2);
-  }
-  virtual void execute(){
-    Serial.print(getName());
-    Serial.print(":");
-    Serial.println(arg1);
-    Serial.println(arg2);
-  }
-private:
-  char arg1[10];
-  int arg2;
-};
-
 
 class MethodMatcher : public MiniRPCMethod
 {

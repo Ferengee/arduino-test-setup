@@ -56,9 +56,13 @@ void MiniRPCDispatcher::select(MiniRPCMethod* method)
 
 void MiniRPCDispatcher::reset()
 {
+  //int nextToken = 0;
+  //while((nextToken = streamWrapper->read()) > -1)
+  //  ;
   stringStreamParser.reset();
   intStreamParser.reset();
   floatStreamParser.reset();
+  select(&methodMatcher);
 
 }
 
@@ -66,7 +70,7 @@ void MiniRPCDispatcher::reset()
 bool MiniRPCDispatcher::update()
 {
   MiniRPCMethod * active_method = selected_method;
-  if(active_method->ready()){
+  if(active_method->isReady()){
       active_method->execute();
       /*
        * the called method can update the dispatchers state 
@@ -77,8 +81,12 @@ bool MiniRPCDispatcher::update()
   }else{
     active_method->pre_prepare();
     active_method->prepare();
-    if (active_method->error())
+    active_method->post_prepare();
+    if (active_method->hasError())
     {
+      reset();
+      active_method->error();
+
       return false;
     }
   }
@@ -120,6 +128,7 @@ void MiniRPCMethod::init(MiniRPCDispatcher * dispatcher)
   active_argument_state = MINIRPC_ARGUMENT_INIT;
   active_argument_index = 0;
   current_argument_index= 0;
+  total_argument_count = -1;
   this->dispatcher = dispatcher;
   dispatcher->stringStreamParser.configure('"', '"');
 }
@@ -146,7 +155,7 @@ int MiniRPCMethod::stripTerminator()
 
   if (terminator == -1){
     progress = 0;
-  } else if(terminator != ',' && terminator != ')'){  
+  } else if(terminator != ',' && terminator != ')' && terminator != '/'){  
     active_argument_state = MINIRPC_ARGUMENT_ERROR;
     progress = -1;
   }
@@ -165,7 +174,6 @@ int MiniRPCMethod::getCleanup(int progress)
       active_argument_state = MINIRPC_ARGUMENT_ERROR;
   }
   return progress == 1;
-
 }
 
 
@@ -182,7 +190,7 @@ bool MiniRPCMethod::get(char* buffer, int len)
 
 int MiniRPCMethod::getStr(char* buffer, int len)
 {
-   int mg = getStage();
+  int mg = getStage();
   switch(mg){
     case MINIRPC_ARGUMENT_SKIP:
       return false;
@@ -192,6 +200,7 @@ int MiniRPCMethod::getStr(char* buffer, int len)
       dispatcher->stringStreamParser.reset();
       dispatcher->charBufferManager.init(buffer, len);
       active_argument_state = MINIRPC_ARGUMENT_WORKING;
+      break;
   }
   
   /*
@@ -212,6 +221,7 @@ bool MethodMatcher::getMethodName(char* method_name, int len)
 bool MiniRPCMethod::get(int &arg)
 {
   int mg = getStage();
+  int progress = 1;
   switch(mg){
     case MINIRPC_ARGUMENT_SKIP:
       return false;
@@ -220,14 +230,23 @@ bool MiniRPCMethod::get(int &arg)
       dispatcher->intStreamParser.reset();
       dispatcher->intBufferManager.init();
       active_argument_state = MINIRPC_ARGUMENT_WORKING;
+      
+    case MINIRPC_ARGUMENT_WORKING:
+      progress = dispatcher->intStreamParser.process();
+      if(progress == 1){
+        arg = dispatcher->intBufferManager.getBuffer();
+        active_argument_state = MINIRPC_ARGUMENT_FINISHED;
+      }
+          
   }
- 
-
-  int progress = dispatcher->intStreamParser.process();
-  if(progress == 1){
-    arg = dispatcher->intBufferManager.getBuffer();
+  
+  if(active_argument_state == MINIRPC_ARGUMENT_FINISHED){
     progress = stripTerminator();   
   }
+  /*  if progress -1 => error
+      if progress 1 => advance to next arguments\
+      if progress 0 => do nothing (stay)
+   */
   return getCleanup(progress);
 }
 
@@ -243,15 +262,15 @@ bool MiniRPCMethod::get(float &arg)
       dispatcher->floatStreamParser.reset();
       dispatcher->floatBufferManager.init();
       active_argument_state = MINIRPC_ARGUMENT_WORKING;
+      break;
   }
 
   int progress = dispatcher->floatStreamParser.process();
   if(progress == 1){
     arg = dispatcher->floatBufferManager.getBuffer();
     progress = stripTerminator();
-    
   }
-return getCleanup(progress);
+  return getCleanup(progress);
 }
 
 /*
@@ -260,10 +279,18 @@ return getCleanup(progress);
  * It returns true if the active_argument_state == MINIRPC_ARGUMENT_INIT && active_argument_index == current_argument_index + 1
  * which implies that all the arguments have succesfully been parsed
  */
-bool MiniRPCMethod::ready()
+bool MiniRPCMethod::isReady()
 {
-  return active_argument_state == MINIRPC_ARGUMENT_INIT && active_argument_index == current_argument_index + 1;
+  return active_argument_state == MINIRPC_ARGUMENT_INIT && active_argument_index == total_argument_count  && total_argument_count > -1;
 }
+
+void MiniRPCMethod::error()
+{
+  StreamWrapper * out =  dispatcher->streamWrapper;
+  out->print("Error parsing arguments for: ");
+  out->println(getName());
+}
+
 
 MethodMatcher::MethodMatcher()
 {
@@ -273,8 +300,6 @@ MethodMatcher::MethodMatcher()
 
 void MethodMatcher::execute()
 {
-    Serial.print("calling dispatcher: ");
-    Serial.println(dispatcher->charBufferManager.getBuffer());
   dispatcher->select(_method_name, _method_name_length); 
 }
 
