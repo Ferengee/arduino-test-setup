@@ -29,7 +29,6 @@ int StreamParser::process()
   if(nextState == NULL){
     return -1;
   }
-  ReaderState * lastState = nextState;
   nextState = nextState->process(streamWrapper, bufferManager);
   if (nextState == errorState)
     return -1;

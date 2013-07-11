@@ -14,7 +14,6 @@ public:
   virtual int read(){
     if (_stream->available()){
       int r = _stream->read();
-      _stream->print((char)r);
       return r;
     } else {
       return -1;
