@@ -39,9 +39,7 @@ void MiniRPCDispatcher::select(char* method_name, int length)
     }  
   }
   if(!found){
-    Serial.println("failed to find:");
-  
-    Serial.println(method_name);
+    methodNotFound(method_name);
   }
 }
 
