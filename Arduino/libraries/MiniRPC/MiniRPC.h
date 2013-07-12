@@ -102,9 +102,9 @@ public:
 protected:
   //TODO escape interfering tokens in methodName
   virtual void methodNotFound(const char * methodName){
-    streamWrapper.print("{'class':'MethodNotFoundException','message':'failed to find ");
-    streamWrapper.print(methodName);
-    streamWrapper.println("'}");
+    streamWrapper->print("{'class':'MethodNotFoundException','message':'failed to find ");
+    streamWrapper->print(methodName);
+    streamWrapper->println("'}");
   } 
 private:
   MiniRPCMethod * _methods[MAX_METHOD_COUNT];
