@@ -35,6 +35,7 @@ public:
   void setName(const char * name){ _name = name;}
 
   void pre_prepare();
+  //TODO: consume remaining ) if there were no arguments
   void post_prepare(){total_argument_count = current_argument_index + 1 ;}
 
   bool isReady();
@@ -88,6 +89,15 @@ public:
   void select(char * method_name, int length);
   void select (MiniRPCMethod * method);
   bool test();
+  /*
+   * list must be at least MAX_METHOD_COUNT long
+   */
+  void getMethodList(MiniRPCMethod ** list, int &length){
+    int i;
+    for (i=0; i < _methodsCount; i++)
+       list[i] = _methods[i];
+    length = _methodsCount;
+  }
   
   StreamWrapper * streamWrapper;
   
