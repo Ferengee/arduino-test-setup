@@ -1,8 +1,30 @@
 #include <MiniRPC.h>
 #include <StreamWrapper.h>
-
 #include <StateMachine.h>
-#include "BufferManager.h"
+#include <BufferManager.h>
+#include <Arduino.h>
+
+class ListMethods : public MiniRPCMethod
+{
+public:
+  ListMethods(){
+    setName("listMethods");
+  }
+  virtual void prepare(){}
+  virtual void execute(){
+    MiniRPCMethod * list[MAX_METHOD_COUNT];
+    int length = 0;
+    dispatcher->getMethodList(list, length);
+    int i;
+    Serial.print("[");
+    for (i=0; i < length; i++){
+      Serial.print(list[i]->getName());
+      if(i < length -1)
+        Serial.print(", ");
+    }
+    Serial.println("]");
+  }
+};
 
 class TestMethod : public MiniRPCMethod
 {
@@ -22,7 +44,7 @@ public:
   }
 private:
   char arg1[10];
-  int arg2;
+  float arg2;
 };
 
 StreamWrapper in = StreamWrapper();
@@ -33,38 +55,26 @@ StringStreamParser stringStreamParser = StringStreamParser();
 char _test_value[30];
 */
 TestMethod tm;
+ListMethods lm;
 
-int main(void)
+
+void setup()
 {
+  Serial.begin(9600);
   in.setStream(&Serial);
   d1.registerMethod(&tm);
-  Serial.setTimeout(1000);
+  d1.registerMethod(&lm);
 
-/*
-  stringStreamParser.setBufferManager(&charBufferManager);
-  stringStreamParser.setStreamWrapper(&in);
+  Serial.println("{'class': 'Event', 'message': 'setup finished'}");
+}
 
-  int state;
-  charBufferManager.init(_test_value,30);
-  stringStreamParser.reset();
-  while((state = stringStreamParser.process()) == 0){
-    Serial.print("_"); 
-  }
-  if (state == -1){
-    Serial.println("Error");
-  }else{
-    Serial.println("Done");
-    charBufferManager.terminateStr();
-    Serial.println(charBufferManager.getBuffer());
-  }
-  */
-
-  while(1){
+void loop(){
     d1.update();
    // delay(500);
-  }
-    getch();
-    getch();
-  endwin();
-  return 0;
+}
+
+int main(){
+  setup();
+  while(1)
+    loop();
 }
