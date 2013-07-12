@@ -35,8 +35,7 @@ public:
   void setName(const char * name){ _name = name;}
 
   void pre_prepare();
-  //TODO: consume remaining ) if there were no arguments
-  void post_prepare(){total_argument_count = current_argument_index + 1 ;}
+  void post_prepare();
 
   bool isReady();
   bool hasError(){return active_argument_state == MINIRPC_ARGUMENT_ERROR;}

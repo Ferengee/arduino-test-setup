@@ -161,6 +161,16 @@ int MiniRPCMethod::stripTerminator()
   return progress;
 }
 
+void MiniRPCMethod::post_prepare()
+{
+  int progress = 0;
+  total_argument_count = current_argument_index + 1 ;
+  if(total_argument_count == 0)
+    while(progress == 0)
+      progress = stripTerminator();
+}
+
+
 int MiniRPCMethod::getCleanup(int progress)
 {
   switch(progress){
