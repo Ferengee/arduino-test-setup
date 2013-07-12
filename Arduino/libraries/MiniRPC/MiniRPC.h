@@ -99,18 +99,20 @@ public:
   
   FloatBufferManager floatBufferManager;
   FloatStreamParser floatStreamParser;
+protected:
+  //TODO escape interfering tokens in methodName
+  virtual void methodNotFound(const char * methodName){
+    streamWrapper.print("{'class':'MethodNotFoundException','message':'failed to find ");
+    streamWrapper.print(methodName);
+    streamWrapper.println("'}");
+  } 
 private:
   MiniRPCMethod * _methods[MAX_METHOD_COUNT];
   int _methodsCount;
   MiniRPCMethod * selected_method;
   MethodMatcher methodMatcher;
   void reset();
-  //TODO escape interfering tokens in methodName
-  virtual void methodNotFound(const char * methodName){
-    streamWrapper.print("{'class':'MethodNotFoundException','message':'failed to find ");
-    streamWrapper.print(methodName);
-    streamWrapper.println("'}");
-  }
+
   char _test_value[30];
 };
 
