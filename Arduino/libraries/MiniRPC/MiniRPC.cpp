@@ -280,6 +280,10 @@ bool MiniRPCMethod::get(float &arg)
   }
   return getCleanup(progress);
 }
+/*
+ * TODO: move all strings to progmem
+ * use a string lookup method to retrieve the correct string from the table 
+ */
 
 /*
  * the result of this method is incorrect if it is called inside the branch of a get(...) call
