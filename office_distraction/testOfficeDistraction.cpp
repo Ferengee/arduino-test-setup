@@ -5,7 +5,7 @@
 #include "../Arduino/DummySerial.h"
 
 char message[ ] = "Hallo";
-uint8_t channel = 1;
+uint8_t other = 1;
 int button_pin = 3;
 int led_pin = 13;
 int incomingByte = 0;
@@ -25,7 +25,7 @@ void setup(){
   Serial.begin(9600);
   pinMode(button_pin, INPUT);  
   digitalWrite(button_pin, HIGH);  //enable pullup resistor
-  control.setChannel(channel);
+  control.setChannelID(1);
   control.setMessageReceivedEventHandler(receiveMessageItem);
   Serial.println("setup finished...");
 }
@@ -34,13 +34,13 @@ void setup(){
 
 void loop(){
    runTest = false;
-   while(incomingByte = getch() > 0) {
+   while((incomingByte = getch()) > 0) {
       // read the incoming byte:;
       runTest = true;
    }
   if(runTest){
     Serial.println("Running test...");
-    control.sendMessage(channel, (uint8_t *)message, 6);
+    control.sendMessage(other, (uint8_t *)message, 6);
   }
   //Serial.println("update");  
   delay(5);
