@@ -12,9 +12,10 @@
 #include <sstream>
 #include <unistd.h>
 #include <stdint.h>
-
+#include <math.h>
 #include "DummySerial.h"
 
+#define PI 3.1415926535897932384626433832795
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
 
