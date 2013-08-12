@@ -28,7 +28,7 @@ public:
   MiniRPCDispatcher * dispatcher;
 
   /* returns true if finished getting */
-  bool get(char * buffer, int len);
+  bool get(char * buffer, int &len);
   bool get(int &arg);
   bool get(float &arg);
   const char * getName(){ return _name; }

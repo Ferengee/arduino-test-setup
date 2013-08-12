@@ -185,14 +185,16 @@ int MiniRPCMethod::getCleanup(int progress)
 }
 
 
-bool MiniRPCMethod::get(char* buffer, int len)
+bool MiniRPCMethod::get(char* buffer, int &len)
 {
   int progress = getStr(buffer, len);
   //while(progress == 0){
   //  progress = dispatcher->stringStreamParser.process();
   //}
-  if(progress == 1)
+  if(progress == 1){
     progress = stripTerminator();
+    len = dispatcher->charBufferManager.used();
+  }
   return getCleanup(progress);
 }
 
