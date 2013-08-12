@@ -1,5 +1,5 @@
 libs = -lncurses
-gccflags = -Wall -fpermissive -g
+gccflags = -Wall -fpermissive -g -lm
 cc = g++
 
 include_paths = ../Arduino . ../Arduino/libraries/MiniRPC ../../arduino-libs/OfficeDistraction/
@@ -35,4 +35,5 @@ Arduino.o: ../Arduino/Arduino.cpp
 
 clean:
 	find -name "*.o" -delete
+	find ../../arduino-libs/OfficeDistraction/ -name "*.o" -delete
 	rm test_office_distraction
