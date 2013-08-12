@@ -13,11 +13,11 @@ bool runTest = false;
 TestSenderReceiver tr = TestSenderReceiver();
 RFMessageControl control = RFMessageControl(&tr);
 
-void receiveMessageItem(MessageQueueItem * item){
+void receiveMessageItem(MessageQueueItem item){
   Serial.print("Message received:") ;
   uint8_t message[MESSAGE_SIZE];
   uint8_t length = MESSAGE_SIZE;
-  item->getMessage(message, &length);
+  item.getMessage(message, &length);
   Serial.println((char *)message);
 }
 
