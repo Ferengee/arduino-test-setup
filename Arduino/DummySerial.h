@@ -7,9 +7,15 @@
 #include <stdlib.h>
 #include <iostream>
 #include <sstream>
-#include <ncurses.h>
 
 using namespace std;
+
+int getch(void);
+
+int ungetch(int c);
+
+int endwin(void);
+
 
 class Stream 
 {
@@ -17,13 +23,9 @@ public:
   Stream();
   void begin(int) { }
   bool available(void) {return m_available;}
-  int read(void){ return getch();}
-  int peek(void){ 
-    int r = getch(); 
-    if(r > -1)
-      ungetch(r); 
-    return r;
-  }
+  bool stdin_available(void);
+  int read(void);
+  int peek(void);
   void setTimeout(unsigned long timeout);
   int timedRead(void) {return read();}
   int parseInt(){return 7;}
@@ -49,6 +51,7 @@ public:
 
 private:
   bool m_available;
+  int m_timeout;
   
 
 };

@@ -33,7 +33,7 @@ public:
     setName("m");
   }
   virtual void prepare(){
-    get(arg1, 10);
+    get(arg1, len);
     get(arg2);
   }
   virtual void execute(){
@@ -45,6 +45,8 @@ public:
 private:
   char arg1[10];
   float arg2;
+  int len;
+  
 };
 
 StreamWrapper in = StreamWrapper();
