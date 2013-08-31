@@ -5,6 +5,7 @@ class StreamWrapper
 {
   
 public:
+  StreamWrapper(){ _stream = &Serial; }
   virtual int peek(){ 
     if (_stream->available())
       return _stream->peek();
