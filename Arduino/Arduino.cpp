@@ -65,5 +65,5 @@ unsigned long millis(void){
   struct timeval tv;
   struct timezone tz;
   gettimeofday(&tv, &tz);
-  return tv.tv_sec + tv.tv_usec * 1000;
+  return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
