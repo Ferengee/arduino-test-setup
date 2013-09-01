@@ -12,4 +12,4 @@ files.
 
 Currently I am building a MiniRPC library for the arduino and it is tested and build in this codebase.
 
-This project builds on linuxs with ncurses.
+This project builds on linux.
