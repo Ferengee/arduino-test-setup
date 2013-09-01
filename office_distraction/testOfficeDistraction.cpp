@@ -84,7 +84,8 @@ void loop(){
    }
   if(runTest){
     Serial.println("Running test...");
-    controlA.sendMessage(other, (uint8_t *)message, 6);
+    if(!controlA.sendMessage(other, (uint8_t *)message, 6))
+      Serial.println("Failed to allocate message...");
   }
   //Serial.println("update");  
 //  delay(5);
