@@ -11,7 +11,7 @@ int main()
   control.sine(0,100,255, 255);
   
   int i ;
-  for (i=0; i < 90; i++){
+  while (millis() < 10000){
     control.update();
     delay (100);
   }
