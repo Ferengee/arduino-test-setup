@@ -9,11 +9,10 @@ int main()
   control.off();
   control.update();
   control.sine(0,100,255, 255);
-  
-  int i ;
-  while (millis() < 10000){
+  unsigned long int now = millis();
+  while ((millis() - now) < 200){
     control.update();
-    delay (100);
+    delay (2);
   }
   
 }
