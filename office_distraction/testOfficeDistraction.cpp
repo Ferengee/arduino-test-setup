@@ -26,6 +26,8 @@ void receiveMessageItem(MessageQueueItem item){
   Serial.print("Message received:") ;
   uint8_t message[MESSAGE_SIZE];
   uint8_t length = MESSAGE_SIZE;
+  memset(message, 0, MESSAGE_SIZE);
+
   item.getMessage(message, &length);
   Serial.print(":");
   Serial.print(item.getMessageType());
@@ -70,7 +72,6 @@ void setup(){
   controlB.setMessageReceivedEventHandler(receiveMessageItemB);
   controlB.notifyDiscartedItem = notifyDiscartedItem;
   Serial.println("setup finished...");
-  
 }
 
 
