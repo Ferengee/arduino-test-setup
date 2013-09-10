@@ -8,9 +8,8 @@ int main()
   control.update();
   control.off();
   control.update();
-  control.sine(0,100,255, 255);
-  unsigned long int now = millis();
-  while ((millis() - now) < 200){
+  control.sine(0,10,255, 10);
+  while (!control.isOff()){
     control.update();
     delay (2);
   }
