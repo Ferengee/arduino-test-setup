@@ -37,16 +37,16 @@ void handleButtonCommand(bool value)
 {
   Serial.print("handle button: ");
   Serial.println(value);
-  master.sendLedCommand(1, SINE, 0, 200, 255, 30);
+  master.sendLedCommand(1, SINE, 125, 10, 255, 30);
 }
 
 void handleVibrateCommmand(uint8_t shape, uint8_t offset, uint8_t duration, uint8_t amplitude, uint8_t period)
 {
-  led.set(shape, offset, duration, amplitude, period);
+  vibrate.set(shape, offset, duration, amplitude, period);
 }
 void handleLedCommand(uint8_t shape, uint8_t offset, uint8_t duration, uint8_t amplitude, uint8_t period)
 {
-  vibrate.set(shape, offset, duration, amplitude, period);
+  led.set(shape, offset, duration, amplitude, period);
 }
 
 
