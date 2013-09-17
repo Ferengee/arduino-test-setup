@@ -1,4 +1,4 @@
-libs = -lncurses
+libs = 
 gccflags = -Wall -fpermissive -g
 cc = g++
 
