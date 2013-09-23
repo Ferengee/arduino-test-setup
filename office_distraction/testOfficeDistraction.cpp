@@ -29,26 +29,31 @@ void notifyDiscartedItem(MessageQueueItem* item)
 {
   Serial.print("Discarted item: ");
   Serial.print(item->getMessageId());
-  Serial.print(":");
-  Serial.println(item->getMessageType());
 }
 
-void handleButtonCommand(bool value)
+void handleButtonCommand(CommandContext * context, digital_command_t cmd)
 {
   Serial.print("handle button: ");
-  Serial.println(value);
-  master.sendLedCommand(1, SINE, 125, 10, 255, 30);
+  Serial.println(cmd.value);
+  
+  od_command_header_t response; 
+  response.label= LED;
+  response.pwm.shape = SINE;
+  response.pwm.offset = 125; 
+  response.pwm.duration = 10;
+  response.pwm.amplitude = 255, 
+  response.pwm.period = 30;
+  context->reply(&response);
 }
 
-void handleVibrateCommmand(uint8_t shape, uint8_t offset, uint8_t duration, uint8_t amplitude, uint8_t period)
+void handleVibrateCommmand(CommandContext * context, pwm_command_t cmd)
 {
-  vibrate.set(shape, offset, duration, amplitude, period);
+  vibrate.set(cmd.shape, cmd.offset, cmd.duration, cmd.amplitude, cmd.period);
 }
-void handleLedCommand(uint8_t shape, uint8_t offset, uint8_t duration, uint8_t amplitude, uint8_t period)
+void handleLedCommand(CommandContext * context, pwm_command_t cmd)
 {
-  led.set(shape, offset, duration, amplitude, period);
+  led.set(cmd.shape, cmd.offset, cmd.duration, cmd.amplitude, cmd.period);
 }
-
 
 void setup(){
   Serial.begin(9600);
