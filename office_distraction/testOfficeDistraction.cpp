@@ -2,6 +2,7 @@
 
 #include <ButtonMessageControl.h>
 #include <BaseSenderReceiver.h>
+#include "TestSenderReceiver.h"
 #include <PWMControl.h>
 
 #include "../Arduino/DummySerial.h"

@@ -8,8 +8,8 @@ includes =$(foreach d, $(include_paths), -I$d)
 all: test_office_distraction
 
 
-test_office_distraction : testOfficeDistraction.cpp PWMControl.o MessageQueueItem.o MessageQueueSorter.o BaseSenderReceiver.o RFMessageControl.o Arduino.o DummySerial.o ButtonMessageControl.o
-	$(cc) $(gccflags) testOfficeDistraction.cpp PWMControl.o MessageQueueItem.o MessageQueueSorter.o BaseSenderReceiver.o RFMessageControl.o Arduino.o DummySerial.o ButtonMessageControl.o -o test_office_distraction $(includes) $(libs)
+test_office_distraction : testOfficeDistraction.cpp PWMControl.o MessageQueueItem.o MessageQueueSorter.o TestSenderReceiver.o RFMessageControl.o Arduino.o DummySerial.o ButtonMessageControl.o
+	$(cc) $(gccflags) testOfficeDistraction.cpp PWMControl.o MessageQueueItem.o MessageQueueSorter.o TestSenderReceiver.o RFMessageControl.o Arduino.o DummySerial.o ButtonMessageControl.o -o test_office_distraction $(includes) $(libs)
 
 StateMachine.o: ../Arduino/libraries/MiniRPC/StateMachine.cpp
 	$(cc) $(gccflags) -c ../Arduino/libraries/MiniRPC/StateMachine.cpp -o StateMachine.o $(includes) $(libs)
@@ -26,8 +26,8 @@ ButtonMessageControl.o: ../../arduino-libs/OfficeDistraction/ButtonMessageContro
 	$(cc) $(gccflags) -c  ../../arduino-libs/OfficeDistraction/ButtonMessageControl.cpp -o ButtonMessageControl.o $(includes) $(libs)
 
 
-BaseSenderReceiver.o: ../../arduino-libs/OfficeDistraction/BaseSenderReceiver.cpp 
-	$(cc) $(gccflags) -c ../../arduino-libs/OfficeDistraction/BaseSenderReceiver.cpp -o BaseSenderReceiver.o $(includes) $(libs)
+TestSenderReceiver.o: TestSenderReceiver.cpp 
+	$(cc) $(gccflags) -c TestSenderReceiver.cpp -o TestSenderReceiver.o $(includes) $(libs)
 
 
 PWMControl.o: ../../arduino-libs/OfficeDistraction/PWMControl.cpp 
