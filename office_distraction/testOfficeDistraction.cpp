@@ -81,8 +81,17 @@ void loop(){
    runTest = false;
    while((incomingByte = Serial.read()) > 0) {
       // read the incoming byte:;
-      runTest = true;
-      message[0] = incomingByte;
+      if ( incomingByte == 'l' ){
+        int min, max;
+        button.reportSendTime(min, max);
+        Serial.print("min send time: ");
+        Serial.println(min);
+        
+        Serial.print("max send time: ");
+        Serial.println(max);
+      } else if ( incomingByte != '\n') {
+        runTest = true;
+      }      
    }
   if(runTest){
     Serial.println("Running test...");
