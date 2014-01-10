@@ -23,7 +23,7 @@ typedef void * (* OnFulfilled) (DeferredClosure* closure, void * input);
  *  or as onRejected handler
  *  is called with the reason which a onFulfilled handler gives on failure
  */
-typedef void (* OnRejected) (const char * reason);
+typedef void * (* OnRejected) (const char * reason);
 
 class Deferred
 {
@@ -40,6 +40,7 @@ private:
   void * data;
   char * reason;
   DeferredClosure * closure;
+  //Todo: use boolean flags because we can be resolved with a NULL
   bool isResolved(){
     return (this->data != NULL || this->reason != NULL); 
   }
@@ -124,25 +125,35 @@ void Deferred::resolve(void * data){
   if(this->onFulfilled != NULL){
     output = this->onFulfilled(this->closure, data); 
   }
-  if(this->closure != NULL){
-    if(!this->closure->catchException(&reason)){
+  //resolve a prommise which is not (yet) chained
+  if(this->closure == NULL)
+    return;
+  
+  if(!this->closure->catchException(&reason)){
+    // if the onFulfilled returns the closures prommise, it takes
+    // responsibility for resolving it
+    if(&this->closure->prommise != output)
       this->closure->prommise.resolve(output);
-    }else{
-      this->closure->prommise.reject(reason);
-    }
+  }else{
+    this->closure->prommise.reject(reason);
   }
+  
   
 }
 
 void Deferred::reject(char * reason){
+  void * output = NULL;
+
   if (this->isResolved())
     return;
   this->reason = reason;
   if(this->onRejected != NULL){
-    onRejected(reason); 
+    output = onRejected(reason); 
   }
-  if(this->closure != NULL)
-    this->closure->prommise.reject(reason);
+  if(this->closure != NULL){
+    if(&this->closure->prommise != output)
+      this->closure->prommise.reject(reason);    
+  }
 }
 
 void * printHello(DeferredClosure* closure, void * data){
@@ -169,10 +180,11 @@ unsigned long millis(void){
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
 
-void handleErrorFn(const char * reason){
+void * handleErrorFn(const char * reason){
   if(reason != NULL);
     cout << "Error: ";
-    cout << reason; 
+    cout << reason;
+  return NULL; 
 }
 
 void * lookUpFriend(DeferredClosure* closure, void * data){
@@ -182,13 +194,15 @@ void * lookUpFriend(DeferredClosure* closure, void * data){
   if(!succes){
     closure->throwException(error);
   }
-  return &((LookUpFriendClosure *)closure)->myFriend;
+  return &closure->prommise;
 }
 
 void * printFriend(DeferredClosure* closure, void * data){
   static char result[] = "print friend\n";
-  Deferred * myFriend = (Deferred *)data;
-  myFriend->then(NULL, printHello);
+  
+  cout << data;
+  //Deferred * myFriend = (Deferred *)data;
+  //myFriend->then(NULL, printHello);
   return result;
 }
 
@@ -196,12 +210,13 @@ int main(int argc, const char* argv[]){
   Deferred getUser;
 
   LookUpFriendClosure helloClosure;
+  LookUpFriendClosure lookUpFriendClosure;
   DeferredClosure printFriendClosure;
   DeferredClosure bye;
 
   DeferredClosure handleError;
   
-  getUser.then(&helloClosure, lookUpFriend)->then(&printFriendClosure, printFriend)->then(&bye, printBye)->then(&handleError, NULL, handleErrorFn);
+  getUser.then(&lookUpFriendClosure, lookUpFriend)->then(&printFriendClosure, printFriend)->then(&helloClosure, printHello)->then(&bye, printBye)->then(&handleError, NULL, handleErrorFn);
   //getUser()->then(getBestFriend)->then(&username, printUserName)->then(&handleError, NULL, handleErrorFn);
   
   
@@ -210,7 +225,7 @@ int main(int argc, const char* argv[]){
 
   user[254] = 0;
   
-  helloClosure.myFriend.resolve(my_friend);
+//  printFriendClosure.prommise.resolve(my_friend);
 
   
   if (argc > 1)
@@ -222,13 +237,15 @@ int main(int argc, const char* argv[]){
         break; 
       }
   }
-  /*
+  
   while(true){
       if(millis() - now > 2000){
-        helloClosure.myFriend.resolve(my_friend);
+        if (strcmp("bas", user) == 0){
+          printFriendClosure.prommise.resolve(my_friend);
+        }
         break; 
       }
   }
-  */
+  
   
 }
