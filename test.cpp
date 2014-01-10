@@ -52,7 +52,7 @@ private:
  * Extend the DeferredClosure class to implement a specific context which
  * the OnFulfilled can use to get references to the outside world
  * 
- * The closure carries a prommise which is returned by Deferred::then() to chain then calls
+ * The closure carries a promise which is returned by Deferred::then() to chain then calls
  */
 class DeferredClosure
 {
@@ -61,7 +61,7 @@ public:
   void throwException(char * exception);
   bool catchException(char** message);
 
-  Deferred prommise;
+  Deferred promise;
 private:
   char * thrownException;
   bool exceptionIsThrown;
@@ -112,7 +112,7 @@ Deferred * Deferred::then(DeferredClosure* closure, OnFulfilled onFulfilled, OnR
   if(this->reason != NULL)
     onRejected(this->reason);
   
-  return &closure->prommise; 
+  return &closure->promise; 
 }
 
 Deferred * Deferred::then(DeferredClosure* closure, OnFulfilled onFulfilled)
@@ -130,17 +130,17 @@ void Deferred::resolve(void * data){
   if(this->onFulfilled != NULL){
     output = this->onFulfilled(this->closure, data); 
   }
-  //resolve a prommise which is not (yet) chained
+  //resolve a promise which is not (yet) chained
   if(this->closure == NULL)
     return;
   
   if(!this->closure->catchException(&reason)){
-    // if the onFulfilled returns the closures prommise, it takes
+    // if the onFulfilled returns the closures promise, it takes
     // responsibility for resolving it
-    if(&this->closure->prommise != output)
-      this->closure->prommise.resolve(output);
+    if(&this->closure->promise != output)
+      this->closure->promise.resolve(output);
   }else{
-    this->closure->prommise.reject(reason);
+    this->closure->promise.reject(reason);
   }
   
   
@@ -157,8 +157,8 @@ void Deferred::reject(char * reason){
     output = onRejected(reason); 
   }
   if(this->closure != NULL){
-    if(&this->closure->prommise != output)
-      this->closure->prommise.reject(reason);    
+    if(&this->closure->promise != output)
+      this->closure->promise.reject(reason);    
   }
 }
 
@@ -200,7 +200,7 @@ void * lookUpFriend(DeferredClosure* closure, void * data){
   if(!succes){
     closure->throwException(error);
   }
-  return &closure->prommise;
+  return &closure->promise;
 }
 
 void * printFriend(DeferredClosure* closure, void * data){
@@ -231,7 +231,7 @@ int main(int argc, const char* argv[]){
 
   user[254] = 0;
   
-//  printFriendClosure.prommise.resolve(my_friend);
+//  printFriendClosure.promise.resolve(my_friend);
 
   
   if (argc > 1)
@@ -246,7 +246,7 @@ int main(int argc, const char* argv[]){
   
   while(true){
       if(millis() - now > 2000){
-        printFriendClosure.prommise.resolve(my_friend);
+        printFriendClosure.promise.resolve(my_friend);
         break; 
       }
   }
