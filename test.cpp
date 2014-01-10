@@ -38,11 +38,13 @@ private:
   OnFulfilled onFulfilled;
   OnRejected onRejected;
   void * data;
+  bool isResolved;
   char * reason;
+  bool isRejected;
   DeferredClosure * closure;
   //Todo: use boolean flags because we can be resolved with a NULL
-  bool isResolved(){
-    return (this->data != NULL || this->reason != NULL); 
+  bool isSettled(){
+    return (this->isRejected || this->isResolved); 
   }
 };
 
@@ -95,6 +97,8 @@ Deferred::Deferred(){
   this->closure = NULL;
   this->onFulfilled = NULL;
   this->onRejected = NULL;
+  this->isRejected = false;
+  this->isResolved = false;
 }
 
 Deferred * Deferred::then(DeferredClosure* closure, OnFulfilled onFulfilled, OnRejected onRejected)
@@ -119,9 +123,10 @@ Deferred * Deferred::then(DeferredClosure* closure, OnFulfilled onFulfilled)
 void Deferred::resolve(void * data){
   void * output = NULL;
   char * reason = NULL;
-  if (this->isResolved())
+  if (this->isSettled())
     return;
   this->data = data;
+  this->isResolved = true;
   if(this->onFulfilled != NULL){
     output = this->onFulfilled(this->closure, data); 
   }
@@ -143,10 +148,11 @@ void Deferred::resolve(void * data){
 
 void Deferred::reject(char * reason){
   void * output = NULL;
-
-  if (this->isResolved())
+  
+  if (this->isSettled())
     return;
   this->reason = reason;
+  this->isRejected = true;
   if(this->onRejected != NULL){
     output = onRejected(reason); 
   }
@@ -240,9 +246,7 @@ int main(int argc, const char* argv[]){
   
   while(true){
       if(millis() - now > 2000){
-        if (strcmp("bas", user) == 0){
-          printFriendClosure.prommise.resolve(my_friend);
-        }
+        printFriendClosure.prommise.resolve(my_friend);
         break; 
       }
   }
