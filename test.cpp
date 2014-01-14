@@ -1,6 +1,8 @@
-#include <iostream> 
-#include <sys/time.h>
+#include <iostream>       
+#include <stdlib.h>
+
 #include <string.h>
+#include "scheduler.h"
 
 using namespace std;
 
@@ -31,9 +33,12 @@ public:
   Deferred();
   Deferred * then(DeferredClosure * closure, OnFulfilled onFulfilled, OnRejected onRejected);
   Deferred * then(DeferredClosure * closure, OnFulfilled onFulfilled);
- 
+  Deferred * andThenAndThen(DeferredClosure * closures, OnFulfilled * actions, int actionCount);
+  Deferred * fail(DeferredClosure * closure, OnRejected onRejected){ return then(closure, NULL, onRejected); };
+  
   void resolve(void * data);
   void reject(char * reason);
+  
 private:
   OnFulfilled onFulfilled;
   OnRejected onRejected;
@@ -42,7 +47,6 @@ private:
   char * reason;
   bool isRejected;
   DeferredClosure * closure;
-  //Todo: use boolean flags because we can be resolved with a NULL
   bool isSettled(){
     return (this->isRejected || this->isResolved); 
   }
@@ -142,8 +146,21 @@ void Deferred::resolve(void * data){
   }else{
     this->closure->promise.reject(reason);
   }
+}
+
+Deferred * Deferred::andThenAndThen(DeferredClosure * closures, OnFulfilled * actions, int actionCount)
+{
+  if (actionCount < 1)
+    return this;
   
+  int i;
   
+  Deferred * result = this;
+  
+  for (i = 0; i < actionCount; i++){
+    result = result->then(&closures[i], actions[i]);
+  }
+  return result;
 }
 
 void Deferred::reject(char * reason){
@@ -179,13 +196,6 @@ void * printBye(DeferredClosure* closure, void * data){
   return data;
 }
 
-unsigned long millis(void){
-  struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv, &tz);
-  return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-}
-
 void * handleErrorFn(const char * reason){
   if(reason != NULL);
     cout << "Error: ";
@@ -212,32 +222,66 @@ void * printFriend(DeferredClosure* closure, void * data){
   return result;
 }
 
+void scheduledExit(void * sched){
+  cout << "exit!\n";
+  exit(0); 
+}
+
+void shout(void * message){
+  cout << (char *)message;
+}
+
+/*
+ * Wrap / encapsulate
+ * - interrup handlers
+ * - timed events / wait
+ * 
+ * 
+ */
+Deferred * andThen(Deferred * start, DeferredClosure * closures, OnFulfilled * actions, int actionCount)
+{
+  if (actionCount < 1)
+    return start;
+  
+  int i;
+  
+  Deferred * result = start;
+  
+  for (i = 0; i < actionCount; i++){
+    result = result->then(&closures[i], actions[i]);
+  }
+  return result;
+}
+
 int main(int argc, const char* argv[]){
   Deferred getUser;
 
-  LookUpFriendClosure helloClosure;
-  LookUpFriendClosure lookUpFriendClosure;
-  DeferredClosure printFriendClosure;
-  DeferredClosure bye;
-
-  DeferredClosure handleError;
+  DeferredClosure closures[4];
   
-  getUser.then(&lookUpFriendClosure, lookUpFriend)->then(&printFriendClosure, printFriend)->then(&helloClosure, printHello)->then(&bye, printBye)->then(&handleError, NULL, handleErrorFn);
-  //getUser()->then(getBestFriend)->then(&username, printUserName)->then(&handleError, NULL, handleErrorFn);
+  DeferredClosure handleError;
+
+  Deferred * result = &getUser;
+
+  OnFulfilled actions[] = {lookUpFriend, printFriend, printHello, printBye};
+  result = result->andThenAndThen(closures, actions, 4);
+  result->fail(&handleError, handleErrorFn);
   
   
   char user[255] = "bas";
-  char my_friend[] = "ferengee";
+  char my_friend[] = "ferengee\n";
 
   user[254] = 0;
   
-//  printFriendClosure.promise.resolve(my_friend);
 
   
   if (argc > 1)
     memcpy(user, argv[1], 254);
-  unsigned long now = millis();
-  while(true){
+  
+  getUser.resolve(user);
+  closures[1].promise.resolve(my_friend);
+
+  /* unsigned long now = millis();
+ while(true){
       if(millis() - now > 1000){
         getUser.resolve(user);
         break; 
@@ -250,6 +294,47 @@ int main(int argc, const char* argv[]){
         break; 
       }
   }
+  */
+ Scheduler exitScheduler;
+ Scheduler shoutScheduler;
+ Schedulers schedulers;
+ 
+ char message[] = "hello world!\n";
+ 
+ exitScheduler.once(3000, scheduledExit, NULL);
+ shoutScheduler.every(100, shout, message);
+ 
+ schedulers.attach(&exitScheduler);
+ schedulers.attach(&shoutScheduler);
+
+ while(true){
+   schedulers.trigger();
+ }
   
+  /*
+   * a then(closure, waitXSeconds)
+   * 
+   * waitXSecons(closure, input){
+   *   ScheduledClosure * scheduledClosure = (ScheduledClosure *)closure;
+   *   scheduledClosure->sheduler.once(input, resolvePromise);
+   *   return closure->promise; 
+   * }
+   * 
+   * resolvePromise(scheduler){
+   *    SchedulerWithPromise * schedulerWithPromise = (SchedulerWithPromise)scheduler;
+   *    schedulerWithPromise->resolve();
+   * }
+   * 
+   * waitForScheduler(closure, input){
+   *   closure->scheduler.result = input;
+   *   closure->scheduler.resolveAt(3000);
+   * 
+   *   return closure->promise; 
+   * }
+   */
   
+  /*
+   * Build a self forfilling (or rejecting) promise
+   * of which the timeout can be set by a OnFulfilled or OnRejected handler of the previous then() call
+   */
 }
