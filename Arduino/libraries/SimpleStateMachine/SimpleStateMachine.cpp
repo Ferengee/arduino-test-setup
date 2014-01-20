@@ -6,6 +6,18 @@ void Vertex::join(State* start, State* end)
   this->endState = end;
   start->link(this);
 }
+void Vertex::startFrom(State* startState, int token)
+{
+  this->startState = startState;
+  this->token = token;
+  startState->link(this);
+}
+
+
+Vertex::Vertex()
+{
+  Vertex(0);
+}
 
 Vertex::Vertex(int token)
 {
@@ -14,6 +26,13 @@ Vertex::Vertex(int token)
   this->startState = NULL;
   this->endState = NULL;
 }
+
+Vertex * State::on(Vertex * via, int token)
+{
+  via->startFrom(this, token);
+  return via;
+}
+
 
 void State::link(Vertex* outgoing)
 {

@@ -8,16 +8,20 @@ class Vertex
 {
 private:
   int token;
+
 public:
   Vertex(int token);
+  Vertex();
   void join(State * start, State * end);
   bool accept(int token){
     return this->token == token;
   }
   Vertex * nextSibbling;
   State * startState;
+  void to(State * endState){ this->endState = endState;}
+    void startFrom(State* arg1, int token);
   State * endState;
-  
+
 };
 
 class State
@@ -28,7 +32,8 @@ public:
   Vertex * outgoing;
 
   void link(Vertex * outgoing);
-    State* tryToken(int token);
+  State * tryToken(int token);
+  Vertex * on(Vertex * via, int token);
 };
 
 class Machine
