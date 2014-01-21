@@ -19,7 +19,9 @@ public:
   Vertex * nextSibbling;
   State * startState;
   void to(State * endState){ this->endState = endState;}
-    void startFrom(State* arg1, int token);
+  void to(State & endState){ this->endState = &endState;}
+
+  void startFrom(State * startState, int token);
   State * endState;
 
 };
@@ -34,6 +36,7 @@ public:
   void link(Vertex * outgoing);
   State * tryToken(int token);
   Vertex * on(Vertex * via, int token);
+  Vertex * on(Vertex & via, int token);
 };
 
 class Machine
@@ -42,6 +45,7 @@ private:
   State * currentState;
 public:
   Machine(State * startState);
+  Machine(State & startState);
   State * getCurrentState();
   bool receive(int token, void * data);
 };

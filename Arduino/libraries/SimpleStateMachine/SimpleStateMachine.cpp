@@ -1,12 +1,12 @@
 #include "SimpleStateMachine.h"
 
-void Vertex::join(State* start, State* end)
+void Vertex::join(State * start, State * end)
 {
   this->startState = start;
   this->endState = end;
   start->link(this);
 }
-void Vertex::startFrom(State* startState, int token)
+void Vertex::startFrom(State * startState, int token)
 {
   this->startState = startState;
   this->token = token;
@@ -27,6 +27,12 @@ Vertex::Vertex(int token)
   this->endState = NULL;
 }
 
+Vertex* State::on(Vertex & via, int token)
+{
+  return this->on(&via, token);
+}
+
+
 Vertex * State::on(Vertex * via, int token)
 {
   via->startFrom(this, token);
@@ -34,7 +40,7 @@ Vertex * State::on(Vertex * via, int token)
 }
 
 
-void State::link(Vertex* outgoing)
+void State::link(Vertex * outgoing)
 {
   outgoing->nextSibbling = this->outgoing;
   this->outgoing = outgoing;
@@ -68,7 +74,11 @@ Machine::Machine(State * startState)
 {
   this->currentState = startState;
 }
-bool Machine::receive(int token, void* data)
+Machine::Machine(State & startState)
+{
+  this->currentState = &startState;
+}
+bool Machine::receive(int token, void * data)
 {
   State * nextState = this->currentState->tryToken(token);
   if(nextState != NULL){

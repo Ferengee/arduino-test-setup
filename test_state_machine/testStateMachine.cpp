@@ -32,7 +32,7 @@ State bState;
 
 Vertex links[7];
 
-Machine machine = Machine(&startState);
+Machine machine = Machine(startState);
 
 enum TransitionEvents {NEXT, BACK, RETURN, ALTERNATIVE};
 
@@ -40,23 +40,22 @@ void setup(){
   
 
   //s1.join(&startState, &aState);
-  Vertex * n = links;
-  startState.on(n++, NEXT)->to(&aState);
-  aState.on(n++, BACK)->to(&startState);
+  Vertex * l = links;
+  startState.on(l++, NEXT)->to(aState);
+  aState.on(l++, BACK)->to(startState);
   
-  startState.on(n++, ALTERNATIVE)->to(&bState);
-  bState.on(n++, BACK)->to(&startState);
+  startState.on(l++, ALTERNATIVE)->to(bState);
+  bState.on(l++, BACK)->to(startState);
   
-  aState.on(n++, NEXT)->to(&endState);
-  bState.on(n++, NEXT)->to(&endState);
-  endState.on(n++, RETURN)->to(&startState);
+  aState.on(l++, NEXT)->to(endState);
+  bState.on(l++, NEXT)->to(endState);
+  
+  endState.on(l++, RETURN)->to(startState);
   
   startState.enterfunc = hello;
-  endState.enterfunc =goodbye;
+  endState.enterfunc = goodbye;
   aState.enterfunc = enterAState;
   bState.enterfunc = enterBState;
-  
-  
 }
 
 void loop(){
@@ -67,8 +66,10 @@ void loop(){
   for (i=0; i < 10; i++){
     delay(100);
     bool succes = machine.receive(steps[i], (void *)data);
-    if (!succes)
-      cout << "skipped: " << steps[i] << "\n";
+    if (!succes){
+      Serial.print("skipped: ");
+      Serial.println(steps[i]);
+    }
   }
   delay(1000);
 }
@@ -82,6 +83,4 @@ int main()
     loop();
     t = millis() - start;
   }
-  //endwin();
-
 }
