@@ -20,40 +20,51 @@ unsigned long millis(void){
  * for this scheduler
  */
 class Scheduler;
+class Schedulers;
 
 typedef void (* TimedEvent) (void * arguments);
 
-class Scheduler
+
+class TriggerAble
+{
+  friend class Schedulers;
+public:
+  TriggerAble()
+  { _arguments = NULL; _handler =  NULL;}
+  virtual int trigger(){ return -1;}
+  void init(TimedEvent handler, void * arguments)
+    { _arguments = arguments; _handler = handler;}
+protected:
+  TriggerAble * next;
+  TimedEvent _handler;
+  void * _arguments;
+};
+
+class Scheduler : public TriggerAble
 {
 public:
   Scheduler();
   void once(unsigned long timeoutMillis, TimedEvent handler, void * arguments);
   void every(unsigned long timeoutMillis, TimedEvent handler, void * arguments);
   void stop();
-  void trigger();
-  Scheduler * next;
-  
+  virtual int trigger();  
 private:
   bool onlyOnce;
   unsigned long timeout;
   unsigned long lastexecution;
-  TimedEvent handler;
-  void * arguments;
-  
 };
 
-class CountdownTimer
+class CountdownTimer : public TriggerAble
 {
 public:
   CountdownTimer();
-  int trigger();
   void reset();
   void start(int start, TimedEvent handler, void * arguments);
+  virtual int trigger();  
+
 private:
-  TimedEvent handler;
   int from;
   int current;
-  void * arguments;
 };
 
 
@@ -61,16 +72,14 @@ CountdownTimer::CountdownTimer()
 {
   this->from = -1;
   this->current = -1;
-  this->handler = NULL;
-  this->arguments = NULL;
+
 }
 
 void CountdownTimer::start(int start, TimedEvent handler, void* arguments)
 {
   this->from = start;
   this->current = start;
-  this->handler = handler;
-  this->arguments = arguments;
+  this->init(handler, arguments);
 }
 
 
@@ -78,8 +87,8 @@ int CountdownTimer::trigger()
 {
   if(current > -1)
     current--;
-  if (current == 0 && this->handler != NULL)
-    handler(this->arguments);
+  if (current == 0 && _handler != NULL)
+    _handler(_arguments);
   return current;
 }
 
@@ -92,9 +101,6 @@ void CountdownTimer::reset()
 Scheduler::Scheduler()
 {
   onlyOnce = true;
-  handler = NULL;
-  next = NULL;
-  arguments = NULL;
 }
 
 void Scheduler::every(long unsigned int timeoutMillis, TimedEvent handler, void* arguments)
@@ -105,40 +111,41 @@ void Scheduler::every(long unsigned int timeoutMillis, TimedEvent handler, void*
 
 void Scheduler::once(long unsigned int timeoutMillis, TimedEvent handler, void* arguments)
 {
-  this->handler = handler;
+  this->init(handler, arguments);
   this->timeout = timeoutMillis;
   this->onlyOnce = true;
   this->lastexecution = millis();
-  this->arguments = arguments;
 }
 
 void Scheduler::stop()
 {
-  this->handler =  NULL;
+  _handler =  NULL;
 }
 
-void Scheduler::trigger()
+int Scheduler::trigger()
 {
-  if (this->handler == NULL)
-    return;
+  if (_handler == NULL)
+    return -1;
   
   unsigned long now = millis();
   if((this->lastexecution + this->timeout) < now){
     this->lastexecution = now;
-    this->handler(this->arguments);
+    _handler(_arguments);
+    return 1;
   }
+  return 0;
 }
 
 class Schedulers
 {
 public:
   Schedulers();
-  void attach(Scheduler * sched);
-  void remove(Scheduler * sched);
+  void attach(TriggerAble * sched);
+  void remove(TriggerAble * sched);
   void trigger();
   
 private:
-  Scheduler * head;
+  TriggerAble * head;
 };
 
 Schedulers::Schedulers()
@@ -146,29 +153,29 @@ Schedulers::Schedulers()
   head = NULL;
 }
 
-void Schedulers::attach(Scheduler* sched)
+void Schedulers::attach(TriggerAble * sched)
 {
   sched->next = head;
   head = sched;
 }
 void Schedulers::trigger()
 {
-  Scheduler * current = head;
+  TriggerAble * current = head;
   while(current != NULL){
     current->trigger();
     current = current->next;
   }
 }
 
-void Schedulers::remove(Scheduler* sched)
+void Schedulers::remove(TriggerAble* sched)
 {
   if (sched == head || head == NULL){
     head = NULL;
     return;
   }
   
-  Scheduler * last = head;
-  Scheduler * current = head->next;
+  TriggerAble * last = head;
+  TriggerAble * current = head->next;
 
   while(current != NULL){
     if(current == sched){
