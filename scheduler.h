@@ -45,26 +45,36 @@ private:
 class CountdownTimer
 {
 public:
-  CountdownTimer(int start, TimedEvent handler, void * arguments);
-  int count();
+  CountdownTimer();
+  int trigger();
   void reset();
+  void start(int start, TimedEvent handler, void * arguments);
 private:
   TimedEvent handler;
-  int start;
+  int from;
   int current;
   void * arguments;
 };
 
 
-CountdownTimer::CountdownTimer(int start, TimedEvent handler, void* arguments)
+CountdownTimer::CountdownTimer()
 {
-  this->start = start;
+  this->from = -1;
+  this->current = -1;
+  this->handler = NULL;
+  this->arguments = NULL;
+}
+
+void CountdownTimer::start(int start, TimedEvent handler, void* arguments)
+{
+  this->from = start;
   this->current = start;
   this->handler = handler;
   this->arguments = arguments;
 }
 
-int CountdownTimer::count()
+
+int CountdownTimer::trigger()
 {
   if(current > -1)
     current--;
@@ -75,7 +85,7 @@ int CountdownTimer::count()
 
 void CountdownTimer::reset()
 {
-  this->current = this->start;
+  this->current = this->from;
 }
 
 

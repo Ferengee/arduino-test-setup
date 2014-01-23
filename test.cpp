@@ -304,19 +304,20 @@ int main(int argc, const char* argv[]){
  Scheduler exitScheduler;
  Scheduler shoutScheduler;
  Schedulers schedulers;
- CountdownTimer countdown = CountdownTimer(4, liftoff, NULL);
+ CountdownTimer countdown;
 
  char message[] = "hello world!\n";
  
  exitScheduler.once(3000, scheduledExit, NULL);
  shoutScheduler.every(100, shout, message);
+ countdown.start(4, liftoff, NULL);
  
  schedulers.attach(&exitScheduler);
  schedulers.attach(&shoutScheduler);
 
  while(true){
    sleep(1);
-   countdown.count();
+   countdown.trigger();
    schedulers.trigger();
  }
   
