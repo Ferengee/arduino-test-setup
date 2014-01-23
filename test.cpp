@@ -4,6 +4,8 @@
 #include <string.h>
 #include "scheduler.h"
 
+#include "unistd.h"
+
 using namespace std;
 
 class Deferred;
@@ -253,6 +255,10 @@ Deferred * andThen(Deferred * start, DeferredClosure * closures, OnFulfilled * a
   return result;
 }
 
+void liftoff(void * scheduler){
+  cout << "liftoff...\n";
+}
+
 int main(int argc, const char* argv[]){
   Deferred getUser;
 
@@ -298,7 +304,8 @@ int main(int argc, const char* argv[]){
  Scheduler exitScheduler;
  Scheduler shoutScheduler;
  Schedulers schedulers;
- 
+ CountdownTimer countdown = CountdownTimer(4, liftoff, NULL);
+
  char message[] = "hello world!\n";
  
  exitScheduler.once(3000, scheduledExit, NULL);
@@ -308,6 +315,8 @@ int main(int argc, const char* argv[]){
  schedulers.attach(&shoutScheduler);
 
  while(true){
+   sleep(1);
+   countdown.count();
    schedulers.trigger();
  }
   

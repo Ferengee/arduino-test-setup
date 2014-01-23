@@ -42,6 +42,43 @@ private:
   
 };
 
+class CountdownTimer
+{
+public:
+  CountdownTimer(int start, TimedEvent handler, void * arguments);
+  int count();
+  void reset();
+private:
+  TimedEvent handler;
+  int start;
+  int current;
+  void * arguments;
+};
+
+
+CountdownTimer::CountdownTimer(int start, TimedEvent handler, void* arguments)
+{
+  this->start = start;
+  this->current = start;
+  this->handler = handler;
+  this->arguments = arguments;
+}
+
+int CountdownTimer::count()
+{
+  if(current > -1)
+    current--;
+  if (current == 0 && this->handler != NULL)
+    handler(this->arguments);
+  return current;
+}
+
+void CountdownTimer::reset()
+{
+  this->current = this->start;
+}
+
+
 Scheduler::Scheduler()
 {
   onlyOnce = true;
