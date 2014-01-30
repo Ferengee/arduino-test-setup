@@ -6,6 +6,11 @@ void EventChannel::addListener(Listener* listener)
   listeners = listener;
   listener->next = tail;
 }
+void EventChannel::addListener(Listener& listener)
+{
+  addListener(&listener);
+}
+
 
 EventChannel::EventChannel()
 {

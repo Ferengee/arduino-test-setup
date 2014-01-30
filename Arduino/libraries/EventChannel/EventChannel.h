@@ -11,6 +11,8 @@ public:
   EventChannel();
   void send(int event, void * data);
   void addListener(Listener * listener);
+  void addListener(Listener & listener);
+
 
 private:
   Listener * listeners;

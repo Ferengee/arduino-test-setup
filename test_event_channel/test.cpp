@@ -27,8 +27,8 @@ int main(){
   test1.id = 1;
   test2.id = 2;
   
-  channel.addListener(&test1);
-  channel.addListener(&test2);
+  channel.addListener(test1);
+  channel.addListener(test2);
   
   channel.send(7, NULL);
   return 0; 
