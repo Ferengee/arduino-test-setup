@@ -1,4 +1,5 @@
 #include <SimpleStateMachine.h>
+#include <EventChannel.h>
 
 void hello(int token, void * data){
   Serial.print("hello ");

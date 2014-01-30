@@ -25,7 +25,11 @@ class Listener
 
 public:
   Listener();
-  virtual void receive(int event, void * data){}
+  /*
+   * returns false if the event is ignored
+   * EventChannel does nothing with this information
+   */
+  virtual bool receive(int event, void * data){}
 private:
   Listener * next;
 };

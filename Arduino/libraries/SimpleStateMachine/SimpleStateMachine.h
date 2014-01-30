@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <EventChannel.h>
 
 typedef void  (* EnterFunc) (int token, void * data);
 
@@ -39,7 +40,7 @@ public:
   Vertex * on(Vertex & via, int token);
 };
 
-class Machine
+class Machine : public Listener
 {
 private:
   State * currentState;
@@ -47,5 +48,5 @@ public:
   Machine(State * startState);
   Machine(State & startState);
   State * getCurrentState();
-  bool receive(int token, void * data);
+  virtual bool receive(int token, void * data);
 };
