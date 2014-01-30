@@ -1,3 +1,6 @@
+#ifndef EventChannel_h
+#define EventChannel_h
+
 #include <Arduino.h>
 
 class Listener;
@@ -25,4 +28,5 @@ private:
   Listener * next;
 };
 
+#endif
 
