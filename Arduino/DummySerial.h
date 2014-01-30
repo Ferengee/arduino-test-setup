@@ -1,7 +1,7 @@
 #ifndef DummySerial_h
 #define DummySerial_h
 #define DUMMY_SERIAL_TIMEOUT 500
-
+#include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
