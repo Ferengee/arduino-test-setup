@@ -29,7 +29,7 @@ public:
    * returns false if the event is ignored
    * EventChannel does nothing with this information
    */
-  virtual bool receive(int event, void * data){}
+  virtual bool receive(int event, void * data){return false;}
 private:
   Listener * next;
 };
