@@ -65,6 +65,17 @@ State::State()
   this->outgoing = NULL;
 }
 
+void Machine::start()
+{
+  enter(this->currentState, 0, NULL);
+}
+
+void Machine::enter(State * nextState, int token, void * data)
+{
+  this->currentState = nextState;
+  if(nextState->enterfunc != NULL)
+    nextState->enterfunc(token, data);
+}
 
 State * Machine::getCurrentState()
 {
@@ -81,9 +92,8 @@ Machine::Machine(State & startState)
 bool Machine::receive(int token, void * data)
 {
   State * nextState = this->currentState->tryToken(token);
-  if(nextState != NULL){
-    this->currentState = nextState;
-    nextState->enterfunc(token, data);
-  }
-  return (nextState != NULL);
+  bool accepted = nextState != NULL;
+  if(accepted)
+    enter(nextState, token ,data);
+  return accepted;
 }

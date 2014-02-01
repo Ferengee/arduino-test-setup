@@ -44,9 +44,11 @@ class Machine : public Listener
 {
 private:
   State * currentState;
+  void enter(State * state, int token, void * data);
 public:
   Machine(State * startState);
   Machine(State & startState);
   State * getCurrentState();
+  void start();
   virtual bool receive(int token, void * data);
 };
