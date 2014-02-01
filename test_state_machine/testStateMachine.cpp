@@ -1,6 +1,11 @@
 #include <SimpleStateMachine.h>
+typedef struct {
+  bool started;
+} process_context_t;
 
 void hello(int token, void * data){
+  ((process_context_t *)data)->started = true;; 
+
   Serial.print("hello ");
   Serial.print(token);
   Serial.print("\n");
@@ -24,7 +29,6 @@ void enterBState(int token, void *data){
   Serial.print("\n");
 }
 
-
 State endState;
 State startState;
 State aState;
@@ -36,9 +40,13 @@ Machine machine = Machine(startState);
 
 enum TransitionEvents {NEXT, BACK, RETURN, ALTERNATIVE};
 
+
+process_context_t context;
+
 void setup(){
   
-
+  context.started = false;
+  
   //s1.join(&startState, &aState);
   Vertex * l = links;
   startState.on(l++, NEXT)->to(aState);
@@ -56,19 +64,25 @@ void setup(){
   endState.enterfunc = goodbye;
   aState.enterfunc = enterAState;
   bState.enterfunc = enterBState;
+  
+  machine.start(&context);
 }
+
+
 
 void loop(){
   
   int steps[] = {NEXT,BACK,ALTERNATIVE,NEXT,BACK,RETURN,ALTERNATIVE,BACK,NEXT,NEXT};
   int i;
   char data[] = "test data";
-  for (i=0; i < 10; i++){
-    delay(100);
-    bool succes = machine.receive(steps[i], (void *)data);
-    if (!succes){
-      Serial.print("skipped: ");
-      Serial.println(steps[i]);
+  if(context.started){
+    for (i=0; i < 10; i++){
+      delay(100);
+      bool succes = machine.receive(steps[i], (void *)data);
+      if (!succes){
+        Serial.print("skipped: ");
+        Serial.println(steps[i]);
+      }
     }
   }
   delay(1000);

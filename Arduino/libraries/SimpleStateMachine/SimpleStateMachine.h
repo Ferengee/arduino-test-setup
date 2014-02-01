@@ -50,5 +50,6 @@ public:
   Machine(State & startState);
   State * getCurrentState();
   void start();
+  void start(void * data);
   virtual bool receive(int token, void * data);
 };

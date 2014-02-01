@@ -67,8 +67,14 @@ State::State()
 
 void Machine::start()
 {
-  enter(this->currentState, 0, NULL);
+  start(NULL);
 }
+
+void Machine::start(void* data)
+{
+  enter(this->currentState, 0, data);
+}
+
 
 void Machine::enter(State * nextState, int token, void * data)
 {
