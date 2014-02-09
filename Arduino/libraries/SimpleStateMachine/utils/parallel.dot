@@ -1,0 +1,18 @@
+digraph{
+  node [shape = Mrecord,height=.1];
+startState->aState[label=NEXT];
+aState->startState[label=BACK];
+startState->bState[label=ALTERNATIVE];
+bState->startState[label=BACK];
+aState->endState[label=NEXT];
+bState->endState[label=NEXT];
+endState->startState[label=RETURN];
+startState[label="startState|hello"];
+endState[label="endState|goodbye"];
+aState[label="aState|enterAState"];
+bState[label="bState|enterBState"];
+startStateB->middleStateB[label=INIT];
+middleStateB->endStateB[label=TRY];
+endStateB->middleStateB[label=FAIL];
+endStateB->startStateB[label=SUCCES];
+}

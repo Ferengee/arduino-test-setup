@@ -31,17 +31,24 @@ State startState;
 State aState;
 State bState;
 
-Vertex links[7];
+State endStateB;
+State startStateB;
+State middleStateB;
+
+Vertex aLinks[7];
+Vertex bLinks[4];
 
 Machine machine = Machine(startState);
+Machine machineB = Machine(startStateB);
 
-enum TransitionEvents {NEXT, BACK, RETURN, ALTERNATIVE};
+
+enum TransitionEvents {NEXT, BACK, RETURN, ALTERNATIVE, INIT, TRY, FAIL, SUCCES};
 
 void setup(){
   
 
   //s1.join(&startState, &aState);
-  Vertex * l = links;
+  Vertex * l = aLinks;
   startState.on(l++, NEXT)->to(aState);
   aState.on(l++, BACK)->to(startState);
   
@@ -57,7 +64,18 @@ void setup(){
   endState.enterfunc = goodbye;
   aState.enterfunc = enterAState;
   bState.enterfunc = enterBState;
+  
+  l = bLinks;
+  
+  startStateB.on(l++, INIT)->to(middleStateB);
+  middleStateB.on(l++, TRY)->to(endStateB);
+  endStateB.on(l++, FAIL)->to(middleStateB);
+  endStateB.on(l++, SUCCES)->to(startStateB);
+  
   machine.start();
+  
+  machineB.start();
+  
 }
 
 void loop(){
