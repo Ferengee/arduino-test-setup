@@ -1,0 +1,22 @@
+# default route
+startState-NEXT->bState
+bState-NEXT->endState
+endState-BACK->bState
+
+# alternative route
+startState-ALTERNATIVE->cState
+cState-NEXT->endState
+cState-BACK->startState
+
+# reset
+endState-RESET->startState
+
+# functions
+startState:hello
+bState:b
+cState:c
+endState:goodbye
+
+# machines
+machine(startState)
+

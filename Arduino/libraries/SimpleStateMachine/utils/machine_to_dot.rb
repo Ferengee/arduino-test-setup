@@ -2,8 +2,7 @@
 #
 # converts state machine definitions found in the stdin to a grapvis dot format
 #  ruby machine_to_dot.rb ../examples/FourSteps/FourSteps.ino > out.dot
-#  dot -Tpng -O out.dot                                              [~/src/ruby]
-
+#  dot -Tpng -O out.dot
 #
 
 definition = ""
