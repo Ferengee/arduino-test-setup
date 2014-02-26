@@ -28,7 +28,7 @@ TestSenderReceiver trA = TestSenderReceiver();
 
 
 void setup(){
-  trA.init(0,0,2000);
+  trA.init(0,0,100);
   Serial.begin(9600);
   Serial.setTimeout(10);
  
@@ -53,8 +53,9 @@ void loop(){
     uint8_t buf[80];
     uint8_t len = 80;
     message_t out;
-    
-    if (trA.have_message()){
+    if(trA.is_receiving()){
+       Serial.println("receiving ...");
+    }else if (trA.have_message()){
       Serial.println("get message:");
       trA.get_message((uint8_t *)buf, &len);
             message_t * msg = (message_t *)buf;

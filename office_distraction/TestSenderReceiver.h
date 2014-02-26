@@ -29,8 +29,12 @@ public:
   TestSenderReceiver();
   virtual bool send(uint8_t * buf, uint8_t len);
   virtual bool have_message();
-  virtual bool get_message(uint8_t * buf, uint8_t * len);   
+  virtual bool get_message(uint8_t * buf, uint8_t * len);
+  virtual bool is_receiving();
+  virtual bool is_transmitting();
   virtual void init(int txPin, int rxPin, int speed);
+  
+  int request_info(char type);
   int message_status();
 
   int startConnection();

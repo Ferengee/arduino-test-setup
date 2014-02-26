@@ -10,6 +10,14 @@ void TestSenderReceiver::init(int txPin, int rxPin, int speed)
   if(startConnection() > 0)
     exit(1);
   this->speed = speed;
+  char buf[MAXDATASIZE] = {0};
+  char out[MAXDATASIZE + 2] = {0};
+  out[0]='b';
+  out[1]=':';
+  itoa(speed, buf);
+  memcpy(&out[2],buf, MAXDATASIZE);
+  printf("bautrate: %s\n", out);
+  ::send(sockfd,  out, MAXDATASIZE + 2, 0);
 }
 
 
@@ -58,10 +66,19 @@ bool TestSenderReceiver::send(uint8_t* buf, uint8_t len)
   out[1]=':';
   memcpy(&out[2],buf, len);
   printf("%s", out);
-  ::send(sockfd,  out, MAXDATASIZE, 0);
+  ::send(sockfd,  out, MAXDATASIZE + 2, 0);
   return true;
 }
 
+bool TestSenderReceiver::is_receiving()
+{
+      return request_info('r') == 1;
+}
+
+bool TestSenderReceiver::is_transmitting()
+{
+      return request_info('t') == 1;
+}
 
 bool TestSenderReceiver::have_message()
 {
@@ -71,19 +88,28 @@ bool TestSenderReceiver::have_message()
 
 int TestSenderReceiver::message_status()
 {
+  return request_info('a');
+}
+
+int TestSenderReceiver::request_info(char type)
+{
   int numbytes;
   char buf[MAXDATASIZE];
   int result = 0;
-  ::send(sockfd, "a:", 2, 0);
-  if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+  
+  char out[2];
+  out[0] = type;
+  out[1] = ':';
+  ::send(sockfd, out, 2, 0);
+  if ((numbytes = recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
         perror("recv");
         exit(1);
   }
   buf[1] = '\0';
   if(numbytes > 0)
     result = atoi((char *)buf);
-  return result;
   
+  return result;
 }
 
 bool TestSenderReceiver::get_message(uint8_t * buf, uint8_t * len)
