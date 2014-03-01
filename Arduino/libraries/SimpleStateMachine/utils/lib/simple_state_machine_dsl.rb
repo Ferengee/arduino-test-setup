@@ -45,6 +45,7 @@ class StateMachineDocument
 end
 
 class InoDocument < StateMachineDocument
+  #TODO: a state and an enterfunc can't have the same name, should throw an error or rename the state by adding State to the end of the name
   def initialize
       super()
       @setup_body = []
@@ -82,7 +83,7 @@ class InoDocument < StateMachineDocument
   end
   
   def enterfuncs
-    @enterfuncs.map { |enterfunc|
+    @enterfuncs.map {|f| f.to_s}.uniq.map { |enterfunc|
       %Q(void #{enterfunc}(int token, void * data){})
                    }.join("\n")
   end
