@@ -2,46 +2,21 @@ libs =
 gccflags = -Wall -fpermissive -g -lm
 cc = g++
 
-include_paths = ../Arduino . ../Arduino/libraries/MiniRPC ../../arduino-libs/OfficeDistraction/
+include_paths = ../Arduino/ . ../../arduino-libs/OfficeDistraction/
 includes =$(foreach d, $(include_paths), -I$d)
+odp = ../../arduino-libs/OfficeDistraction/
+ap = ../Arduino/
+objects = $(odp)PWMControl.o $(odp)MessageQueueItem.o $(odp)MessageQueueSorter.o TestSenderReceiver.o $(odp)RFMessageControl.o $(ap)Arduino.o $(ap)DummySerial.o $(odp)ButtonMessageControl.o
+
+.cpp.o :
+	$(cc) $(gccflags) $(includes) $(libs) -c $*.cpp -o $@
+
 
 all: test_office_distraction
 
 
-test_office_distraction : testOfficeDistraction.cpp PWMControl.o MessageQueueItem.o MessageQueueSorter.o TestSenderReceiver.o RFMessageControl.o Arduino.o DummySerial.o ButtonMessageControl.o
-	$(cc) $(gccflags) testOfficeDistraction.cpp PWMControl.o MessageQueueItem.o MessageQueueSorter.o TestSenderReceiver.o RFMessageControl.o Arduino.o DummySerial.o ButtonMessageControl.o -o test_office_distraction $(includes) $(libs)
-
-StateMachine.o: ../Arduino/libraries/MiniRPC/StateMachine.cpp
-	$(cc) $(gccflags) -c ../Arduino/libraries/MiniRPC/StateMachine.cpp -o StateMachine.o $(includes) $(libs)
-
-
-MessageQueueItem.o: ../../arduino-libs/OfficeDistraction/MessageQueueItem.cpp
-	$(cc) $(gccflags) -c ../../arduino-libs/OfficeDistraction/MessageQueueItem.cpp -o MessageQueueItem.o $(includes) $(libs)
-
-RFMessageControl.o: ../../arduino-libs/OfficeDistraction/RFMessageControl.cpp 
-	$(cc) $(gccflags) -c ../../arduino-libs/OfficeDistraction/RFMessageControl.cpp -o RFMessageControl.o $(includes) $(libs)
-
-
-ButtonMessageControl.o: ../../arduino-libs/OfficeDistraction/ButtonMessageControl.cpp 
-	$(cc) $(gccflags) -c  ../../arduino-libs/OfficeDistraction/ButtonMessageControl.cpp -o ButtonMessageControl.o $(includes) $(libs)
-
-
-TestSenderReceiver.o: TestSenderReceiver.cpp 
-	$(cc) $(gccflags) -c TestSenderReceiver.cpp -o TestSenderReceiver.o $(includes) $(libs)
-
-
-PWMControl.o: ../../arduino-libs/OfficeDistraction/PWMControl.cpp 
-	$(cc) $(gccflags) -c ../../arduino-libs/OfficeDistraction/PWMControl.cpp -o PWMControl.o $(includes) $(libs)
-
-
-MessageQueueSorter.o: ../../arduino-libs/OfficeDistraction/MessageQueueSorter.cpp 
-	$(cc) $(gccflags) -c ../../arduino-libs/OfficeDistraction/MessageQueueSorter.cpp -o MessageQueueSorter.o $(includes) $(libs)
-
-DummySerial.o: ../Arduino/DummySerial.cpp 
-	$(cc) $(gccflags) -c ../Arduino/DummySerial.cpp -o DummySerial.o $(includes) $(libs)
-
-Arduino.o: ../Arduino/Arduino.cpp
-	$(cc) $(gccflags) -c ../Arduino/Arduino.cpp -o Arduino.o $(includes)
+test_office_distraction : testOfficeDistraction.cpp $(objects)
+	$(cc) $(gccflags) testOfficeDistraction.cpp $(objects) -o test_office_distraction $(includes) $(libs)
 
 clean:
 	find -name "*.o" -delete
