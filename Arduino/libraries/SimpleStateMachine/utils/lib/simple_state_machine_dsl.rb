@@ -88,17 +88,18 @@ class InoDocument < StateMachineDocument
                    }.join("\n")
   end
   
+  #TODO: break up states over multiple lines if line becomes to long
   def declarations
-    [@states.map{|s| s.to_s}.uniq.map { |state| %Q(State #{state};)}.join("\n"),
-     "Vertex links[#{@link_count}];",
+    ["State " + @states.map{|s| s.to_s}.uniq.join(", ") + ";",
+     "Vertex state_machine_links[#{@link_count}];",
      @machine_declarations.join("\n"),
      "enum TransitionEvents {#{@events.map{|s| s.to_s}.uniq.join(", ")}};"].join("\n\n")
     
   end
   
   def setup
-    ["void setup(){",
-     "  Vertex * l = links;",
+    ["void setup_machines(){",
+     "  Vertex * l = state_machine_links;",
      @setup_body.join("\n"),
      "}"].join("\n")
   end
@@ -111,9 +112,6 @@ class InoDocument < StateMachineDocument
 #{declarations}
 
 #{setup}
-
-void loop(){}
-
 )
   end 
 end
