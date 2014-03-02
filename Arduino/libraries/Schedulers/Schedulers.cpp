@@ -62,7 +62,11 @@ int Scheduler::trigger()
   unsigned long now = millis();
   if((this->lastexecution + this->timeout) < now){
     this->lastexecution = now;
-    _handler(_arguments);
+    TimedEvent handler = _handler;
+    if(onlyOnce)
+      _handler = NULL;
+
+    handler(_arguments);
     return 1;
   }
   return 0;
