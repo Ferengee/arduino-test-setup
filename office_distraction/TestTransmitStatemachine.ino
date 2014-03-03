@@ -8,6 +8,8 @@
 #define RESTART_TIMEOUT 1000
 #define LOSE_TIMEOUT 1000
 #define SHUTDOWN_TIMEOUT 500
+
+#define USEMAIN
 /*
  * Read the Statemachines tab to see the state machine configuration
  * 
@@ -113,13 +115,6 @@ void setup(){
 void loop(){
   schedulers.trigger();
   delay(10);
-}
-
-int main(){
- setup();
- 
- for(;;){ loop (); }
- return 0;
 }
 
 #include <SimpleStateMachine.h>
