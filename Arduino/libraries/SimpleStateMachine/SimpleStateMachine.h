@@ -45,11 +45,13 @@ class Machine : public Listener
 private:
   State * currentState;
   void enter(State * state, int token, void * data);
+  bool started;
 public:
   Machine(State * startState);
   Machine(State & startState);
   State * getCurrentState();
   void start();
   void start(void * data);
+  void stop(){started = false;}
   virtual bool receive(int token, void * data);
 };

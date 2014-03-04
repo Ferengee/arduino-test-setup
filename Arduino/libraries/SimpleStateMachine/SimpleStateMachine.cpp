@@ -72,6 +72,7 @@ void Machine::start()
 
 void Machine::start(void* data)
 {
+  this->started = true;
   enter(this->currentState, 0, data);
 }
 
@@ -97,6 +98,8 @@ Machine::Machine(State & startState)
 }
 bool Machine::receive(int token, void * data)
 {
+  if(!started)
+    return false;
   State * nextState = this->currentState->tryToken(token);
   bool accepted = nextState != NULL;
   if(accepted)
