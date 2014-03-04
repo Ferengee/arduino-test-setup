@@ -3,3 +3,4 @@
 *.kate-swp
 *.o
 *.kdev4
+.kdev_include_paths
