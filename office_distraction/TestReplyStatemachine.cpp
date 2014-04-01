@@ -4,6 +4,7 @@
 #include "/home/ferengee/src/arduino-libs/OfficeDistraction/examples/TestReplyStatemachine/Statemachines.ino"
 
 int main(){
+  millis();
   setup();
   for(;;){loop();}
 }
