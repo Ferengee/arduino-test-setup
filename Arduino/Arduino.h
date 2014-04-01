@@ -19,6 +19,8 @@
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
 
+#define log(message) printf("(%lu) %s\n", uptime(), message )
+
 using namespace std;
 
 enum {INPUT, OUTPUT};
@@ -39,8 +41,9 @@ void pinMode(int pin, int mode);
 
 void delay(int timeout);
 
+int mrandom(int from, int until);
+
 unsigned long millis(void);
-
-
+unsigned long uptime(void);
 
 #endif

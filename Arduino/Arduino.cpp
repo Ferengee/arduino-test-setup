@@ -60,10 +60,30 @@ void pinMode(int pin, int mode) {
 void delay(int timeout){
   usleep(timeout * 1000); 
 }
+
+int mrandom(int from, int until){
+  srand((int)millis());
+  return from + rand() / (RAND_MAX / (until - from)); 
+}
  
 unsigned long millis(void){
+  static unsigned long offset=0;
+  
+  if(offset == 0){
+    offset = uptime();
+  }
+  return uptime() - offset;
+}
+
+
+unsigned long uptime(void){ 
   struct timeval tv;
   struct timezone tz;
+  
   gettimeofday(&tv, &tz);
+ 
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
+
+
+
