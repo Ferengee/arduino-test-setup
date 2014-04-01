@@ -10,7 +10,7 @@ alp = ../Arduino/libraries/
 objects = $(odp)PWMControl.o $(odp)MessageQueueItem.o $(odp)MessageQueueSorter.o TestSenderReceiver.o $(odp)RFMessageControl.o \
 $(ap)Arduino.o $(ap)DummySerial.o $(odp)ButtonMessageControl.o
 
-objects2 = TestSenderReceiver.o $(ap)Arduino.o $(ap)DummySerial.o $(alp)EventChannel/EventChannel.o $(alp)Schedulers/Schedulers.o $(alp)SimpleStateMachine/SimpleStateMachine.o
+objects2 = TestSenderReceiver.o $(odp)PWMControl.o $(ap)Arduino.o $(ap)DummySerial.o $(alp)EventChannel/EventChannel.o $(alp)Schedulers/Schedulers.o $(alp)SimpleStateMachine/SimpleStateMachine.o
 .cpp.o :
 	$(cc) $(gccflags) $(includes) $(libs) -c $*.cpp -o $@
 
