@@ -24,11 +24,12 @@ public:
   void begin(int) { }
   bool available(void) {return m_available;}
   bool stdin_available(void);
-  int read(void);
+  virtual int read(void);
   int peek(void);
   void setTimeout(unsigned long timeout);
   int timedRead(void) {return read();}
-  int parseInt(){return 7;}
+  int parseInt(char skipChar);
+  int parseInt(void);
   float parseFloat(){return 13.2;}
   size_t readBytes(char * buffer, int max);
   size_t readBytesUntil(char delim, char * buffer, int max);
@@ -50,6 +51,9 @@ public:
 
 
 private:
+  int getSign(char c);
+  int isNumeric(char c);
+  
   bool m_available;
   int m_timeout;
   

@@ -161,4 +161,59 @@ size_t Stream::readBytesUntil(char delim, char * buffer, int max){
   return i;
 }
 
+int Stream::isNumeric(char c){
+  return '0' <= c && c <= '9';
+}
+
+int Stream::getSign(char c){
+  if (c == '-')
+    return -1;
+  else if (c == '+')
+    return 1;
+  else if (isNumeric(c))
+    return 0;
+  return -2;
+}
+
+int Stream::parseInt(char skipChar){
+  int result = 0;
+  int val = read();
+  int sign = getSign(val);
+  if (sign == -2)
+    return 0;
+  
+  if (sign == 0)
+    sign = 1;
+  else
+    val = read();
+  
+  while(val > -1 && val != '\0'){
+    result = result * 10 + val - '0';
+    val = read();
+    while (val == skipChar && val != '\0')
+      val = read();
+  }
+  
+  return result * sign;}
+
+int Stream::parseInt(void){ 
+  int result = 0;
+  int val = read();
+  int sign = getSign(val);
+  if (sign == -2)
+    return 0;
+  
+  if (sign == 0)
+    sign = 1;
+  else
+    val = read();
+  
+  while(val > -1 && val != '\0'){
+    result = result * 10 + val - '0';
+     val = read();
+  }
+  
+  return result * sign;
+}
+
 DummySerial Serial;
