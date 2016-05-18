@@ -187,7 +187,7 @@ int Stream::parseInt(char skipChar){
   else
     val = read();
   
-  while(val > -1 && val != '\0'){
+  while(val > -1 && isNumeric(val)){
     result = result * 10 + val - '0';
     val = read();
     while (val == skipChar && val != '\0')
@@ -208,7 +208,7 @@ int Stream::parseInt(void){
   else
     val = read();
   
-  while(val > -1 && val != '\0'){
+  while(val > -1 && isNumeric(val)){
     result = result * 10 + val - '0';
      val = read();
   }
