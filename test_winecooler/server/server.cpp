@@ -2,8 +2,8 @@
 
 void LocationConfig::use(AbstractHandler * handler)
 {
-  handler->getLink()->link(server->handlers);
-  server->handlers = handler->getLink();
+  handler->link(server->handlers);
+  server->handlers = handler;
   handler->setLocation(location);
 }
 
@@ -22,7 +22,7 @@ void ApiServer::handle(const char * location)
 {
   HandlerList * item = handlers;
   while(item != NULL){
-    item->handler->canHandle(location);
+    ((AbstractHandler *)item)->canHandle(location);
     item = item->next();
   }
   

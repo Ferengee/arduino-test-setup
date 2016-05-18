@@ -2,7 +2,6 @@
 
 AbstractHandler::AbstractHandler(){
   location = NULL;
-  link.handler = this;
 }
 
 void AbstractHandler::setLocation(const char * loc){
@@ -11,10 +10,6 @@ void AbstractHandler::setLocation(const char * loc){
 
 const char * AbstractHandler::getLocation(void){
   return location;
-}
-
-HandlerList * AbstractHandler::getLink(void){
-  return &link;
 }
 
 HandlerList::HandlerList(){

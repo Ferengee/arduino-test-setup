@@ -9,7 +9,6 @@ class ApiRequest;
 
 class HandlerList
 {
-friend class AbstractHandler;
 public:
   HandlerList();
   HandlerList * next();
@@ -17,18 +16,17 @@ public:
   void link(HandlerList * item);
   AbstractHandler * handler;
   
-private:
+protected:
   HandlerList * nextItem;
 };
 
 
-class AbstractHandler
+class AbstractHandler : public HandlerList
 {
 public:
   AbstractHandler();
   const char * getLocation(void);
   void setLocation(const char * location);
-  HandlerList * getLink();
   virtual bool canHandle(const char * location){
     return false;
   }
@@ -38,7 +36,6 @@ public:
   
 protected:
   const char * location;
-  HandlerList link;
 };
 
 
