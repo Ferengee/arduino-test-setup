@@ -39,11 +39,15 @@ class ApiRequest
 public:
   ApiRequest();
   void setStream(Stream * stream){ this->stream = stream;}
-  void initialize(){}
+  void initialize();
   methods method();
+  int getInstanceId();
   int intData(int *data){ return -1;}
-  char * getPath(){return NULL;}
+  char * getKey();
 private:
   Stream * stream;
   methods _method;
+  int _id;
+  char _key[16];
+
 };

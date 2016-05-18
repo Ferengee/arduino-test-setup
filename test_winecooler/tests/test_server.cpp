@@ -79,10 +79,12 @@ error:
 int testCreateApiRequest(){
   ApiRequest request;
   int data;
+  char key[1] = "";
+  char * actual = request.getKey();
 
   check(request.method() == NONE, "Expected uninitialized request to have no type")
   check(request.intData(&data) == -1, "Expected uninitialized request to return an error for intData()")
-  check(request.getPath() == NULL, "Expected uninitialized request to return NULL for getPath()")
+  check(strstr(key, actual) == key, "Expected uninitialized request to return empty string for getKey(), got: %s", actual);
 
   return 0;
 error:
@@ -92,9 +94,10 @@ error:
 
 int testApiRequestMethod(){
   MockStream stream;
-  char source[] = "GET /variable/0 HTTP/1.1\n";
+  char getstr[] = "GET /variable/0 HTTP/1.1\n";
+  char putstr[] = "PUT /variable/0 HTTP/1.1\n";
 
-  stream.setSourceString(source, 26);
+  stream.setSourceString(getstr, 26);
 
   
   ApiRequest request;
@@ -105,10 +108,44 @@ int testApiRequestMethod(){
   
   check(request.method() == GET, "Expected request to read method from stream");
   
+  stream.setSourceString(putstr, 26);
+  request.initialize();
+
+  check(request.method() == PUT, "Expected request to read method from stream");
+  check(request.method() == PUT, "Expected request cache the read value");
+
+  
   return 0;
 error:
   return 1;
   
+}
+
+int testApiRequestGetInstanceId(){
+  MockStream stream;
+  char idstr[] = "GET /variable/17 HTTP/1.1\n";
+  char noidstr[] = "PUT /variable/ HTTP/1.1\n";
+  int id = -2;
+  stream.setSourceString(idstr, 26);
+  
+  ApiRequest request;
+
+  check(request.getInstanceId() == -1, "Expected uninitialized request to return an error for getInstanceId()")
+ 
+  request.setStream(&stream);
+
+  request.initialize();
+  
+  id = request.getInstanceId();
+  check(id == 17, "Expected id to be set to 17, got %d", id);
+  
+  stream.setSourceString(noidstr, 25);
+  request.initialize();
+
+
+  return 0;
+error:
+  return 1;  
 }
 
 int testApiRequestIntData(){
@@ -121,10 +158,27 @@ error:
   return 1;
 }
 
-int testApiRequestGetPath(){
-  ApiRequest request;
+int testApiRequestGetKey(){
+  char key1[] = "variable";
+  char key2[] = "sensor";
+
+  MockStream stream;
+  char key1str[] = "GET /variable/17 HTTP/1.1\n";
+  char key2str[] = "GET /sensor/17 HTTP/1.1\n";
+
+  stream.setSourceString(key1str, 26);
   
-  check(request.getPath() == NULL, "Expected uninitialized request to return NULL for getPath()")
+  ApiRequest request;
+    
+  request.setStream(&stream);
+
+  request.initialize();
+  check(strstr(key1, request.getKey()) == key1, "Expected getKey() to return the key");
+
+  stream.setSourceString(key2str, 23);
+  request.initialize();
+  check(strstr(key2, request.getKey()) == key2, "Expected getKey() to return the key");
+
   return 0;
 error:
   return 1;
@@ -140,8 +194,9 @@ int main(){
   e = e || testHandle();
   e = e || testCreateApiRequest();
 
+  e = e || testApiRequestGetInstanceId();
   e = e || testApiRequestIntData();
-  e = e || testApiRequestGetPath();
+  e = e || testApiRequestGetKey();
   e = e || testApiRequestMethod();
   
   if(e > 0)

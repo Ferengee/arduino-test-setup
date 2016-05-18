@@ -41,4 +41,4 @@ clean:
 	find -name "*.o" -delete	
 	rm *~ 
 	find ../../arduino-libs/OfficeDistraction/ -name "*.o"
-	rm test_scheduler testrun; echo ok
+	rm -f test_scheduler testrun test_server test_log test_handler
