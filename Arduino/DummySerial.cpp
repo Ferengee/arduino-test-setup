@@ -148,8 +148,8 @@ int Stream::peek(void )
 
 
 size_t Stream::readBytesUntil(char delim, char * buffer, int max){
-  int i;
-  int c;
+  int i = 0;
+  int c = -1;
   while ((c = read()) > 0 && i < max){
     if ((char)c == delim){
       ungetc(c, stdin);
