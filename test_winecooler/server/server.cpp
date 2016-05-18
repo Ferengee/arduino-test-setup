@@ -27,3 +27,26 @@ void ApiServer::handle(const char * location)
   }
   
 }
+
+ApiRequest::ApiRequest(){
+  _method = NONE;
+  stream = NULL;
+}
+
+methods ApiRequest::method()
+{
+  if( _method == NONE && stream != NULL){
+    char buf[5];
+    stream->readBytesUntil('/', buf, 5);
+    buf[3] = '\0';
+    /*
+    if (strstr(buf, "PUT ") == buf)
+      _method = PUT;
+
+    else if (strstr(buf, "GET ") == buf)
+      _method = GET;
+  
+    */
+  }
+  return _method;
+}

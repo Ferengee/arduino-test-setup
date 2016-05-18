@@ -32,3 +32,18 @@ public:
   
 };
 
+enum methods {GET, PUT, NONE};
+
+class ApiRequest
+{
+public:
+  ApiRequest();
+  void setStream(Stream * stream){ this->stream = stream;}
+  void initialize(){}
+  methods method();
+  int intData(int *data){ return -1;}
+  char * getPath(){return NULL;}
+private:
+  Stream * stream;
+  methods _method;
+};

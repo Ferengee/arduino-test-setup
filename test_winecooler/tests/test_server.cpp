@@ -76,6 +76,61 @@ error:
   
 }
 
+int testCreateApiRequest(){
+  ApiRequest request;
+  int data;
+
+  check(request.method() == NONE, "Expected uninitialized request to have no type")
+  check(request.intData(&data) == -1, "Expected uninitialized request to return an error for intData()")
+  check(request.getPath() == NULL, "Expected uninitialized request to return NULL for getPath()")
+
+  return 0;
+error:
+  return 1;
+  
+}
+
+int testApiRequestMethod(){
+  MockStream stream;
+  char source[] = "GET /variable/0 HTTP/1.1\n";
+
+  stream.setSourceString(source, 26);
+
+  
+  ApiRequest request;
+  check(request.method() == NONE, "Expected uninitialized request to have no type");
+  
+  request.setStream(&stream);
+  request.initialize();
+  
+  check(request.method() == GET, "Expected request to read method from stream");
+  
+  return 0;
+error:
+  return 1;
+  
+}
+
+int testApiRequestIntData(){
+  ApiRequest request;
+  int data;
+
+  check(request.intData(&data) == -1, "Expected uninitialized request to return an error for intData()")
+  return 0;
+error:
+  return 1;
+}
+
+int testApiRequestGetPath(){
+  ApiRequest request;
+  
+  check(request.getPath() == NULL, "Expected uninitialized request to return NULL for getPath()")
+  return 0;
+error:
+  return 1;
+}
+
+
 int main(){
   int e = 0;
   printf("running server tests:");
@@ -83,7 +138,12 @@ int main(){
   e = e || testCreate();
   e = e || testOn();
   e = e || testHandle();
+  e = e || testCreateApiRequest();
 
+  e = e || testApiRequestIntData();
+  e = e || testApiRequestGetPath();
+  e = e || testApiRequestMethod();
+  
   if(e > 0)
     printf("   FAIL!\n");
   else
