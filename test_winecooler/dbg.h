@@ -1,3 +1,5 @@
+//source: http://c.learncodethehardway.org/book/ex20.html (Zed A. Shaw)
+
 #ifndef __dbg_h__
 #define __dbg_h__
 
