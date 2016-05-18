@@ -109,7 +109,7 @@ size_t Stream::println(char c){
 size_t Stream::readBytes(char * buffer, int max){
   int i;
   int c;
-  while ((c = getchar()) > 0 && i < max){
+  while ((c = read()) > 0 && i < max){
     buffer[i] = (char)c;
     i++;
   }
@@ -150,7 +150,7 @@ int Stream::peek(void )
 size_t Stream::readBytesUntil(char delim, char * buffer, int max){
   int i;
   int c;
-  while ((c = getchar()) > 0 && i < max){
+  while ((c = read()) > 0 && i < max){
     if ((char)c == delim){
       ungetc(c, stdin);
       break;
