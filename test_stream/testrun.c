@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <DummySerial.h>
 #include "dbg.h"
+#include <MockStream.h>
+
 
 #define TRUE 1
 #define FALSE 0
@@ -15,30 +17,6 @@ int testCreateSerial(){
   return 0;
 error:
   return 1;
-}
-
-class MockStream : public Stream
-{
-public:
-  virtual int read(void);
-  void setSourceString(char * string, int len);
-private:
-  int head;
-  int max;
-  char * sourceString;
-};
-
-void MockStream::setSourceString(char * string, int len){
-  head = 0;
-  max = len;
-  sourceString = string;
-}
-
-
-int MockStream::read(void){
-  if (head >= max)
-    return -1;
-  return sourceString[head++];
 }
 
 int testMockSerialRead(){
