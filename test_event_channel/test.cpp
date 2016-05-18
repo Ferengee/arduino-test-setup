@@ -4,11 +4,11 @@
 class TestListener : public Listener
 {
 public:
-  virtual void receive(int event, void * data);
+  virtual bool receive(int event, void * data);
   int id;
 };
 
-void TestListener::receive(int event, void* data)
+bool TestListener::receive(int event, void* data)
 {
     Listener::receive(event, data);
 
@@ -17,6 +17,7 @@ void TestListener::receive(int event, void* data)
     Serial.print(" : ");
     
     Serial.println(event);
+    return true;
 }
 
 EventChannel channel;
