@@ -43,6 +43,7 @@ public:
   void stop();
   virtual int trigger();  
 private:
+  void configure(long unsigned int timeoutMillis, TimedEvent handler, void* arguments, bool onlyOnce);
   bool onlyOnce;
   unsigned long timeout;
   unsigned long lastexecution;

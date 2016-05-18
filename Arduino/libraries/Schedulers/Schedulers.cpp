@@ -35,18 +35,21 @@ Scheduler::Scheduler()
   onlyOnce = true;
 }
 
+void Scheduler::configure(long unsigned int timeoutMillis, TimedEvent handler, void* arguments, bool onlyOnce){
+  this->init(handler, arguments);
+  this->timeout = timeoutMillis;
+  this->onlyOnce = onlyOnce;
+  this->lastexecution = millis();
+}
+
 void Scheduler::every(long unsigned int timeoutMillis, TimedEvent handler, void* arguments)
 {
-  this->once (timeoutMillis, handler, arguments);
-  this->onlyOnce = false;
+  this->configure (timeoutMillis, handler, arguments, false);
 }
 
 void Scheduler::once(long unsigned int timeoutMillis, TimedEvent handler, void* arguments)
 {
-  this->init(handler, arguments);
-  this->timeout = timeoutMillis;
-  this->onlyOnce = true;
-  this->lastexecution = millis();
+  this->configure (timeoutMillis, handler, arguments, true);
 }
 
 void Scheduler::stop()
