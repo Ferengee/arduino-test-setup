@@ -33,6 +33,7 @@ ApiRequest::ApiRequest(){
   stream = NULL;
   _id = -1;
   _key[0] = '\0';
+  _value = -1;
 }
 
 methods ApiRequest::method()
@@ -50,6 +51,9 @@ void ApiRequest::initialize()
     
     if (strstr(_key, "PUT ") == _key)
       _method = PUT;
+    
+    if (strstr(_key, "POST") == _key)
+      _method = POST;
 
     else if (strstr(_key, "GET ") == _key)
       _method = GET;
@@ -58,12 +62,26 @@ void ApiRequest::initialize()
     _key[len] = '\0';
     _id = stream->parseInt();
     
+    if (_method == POST){
+      char lastchar = stream->read();
+      char current = stream->read();
+      while (!(lastchar == '\n' && current == '\n') && current > 0 && lastchar > 0 ){
+        lastchar = current;
+        current = stream->read();
+      }
+      _value = stream->parseInt();
+    }
   }
 }
 
 int ApiRequest::getInstanceId(){
   
   return _id;
+}
+
+int ApiRequest::intData(){
+  
+  return _value;
 }
 
 char * ApiRequest::getKey(){

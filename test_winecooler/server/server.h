@@ -32,7 +32,7 @@ public:
   
 };
 
-enum methods {GET, PUT, NONE};
+enum methods {GET, PUT, POST, NONE};
 
 class ApiRequest
 {
@@ -42,12 +42,13 @@ public:
   void initialize();
   methods method();
   int getInstanceId();
-  int intData(int *data){ return -1;}
+  int intData();
   char * getKey();
 private:
   Stream * stream;
   methods _method;
   int _id;
   char _key[16];
+  int _value;
 
 };

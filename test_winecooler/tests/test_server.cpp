@@ -78,12 +78,11 @@ error:
 
 int testCreateApiRequest(){
   ApiRequest request;
-  int data;
   char key[1] = "";
   char * actual = request.getKey();
 
   check(request.method() == NONE, "Expected uninitialized request to have no type")
-  check(request.intData(&data) == -1, "Expected uninitialized request to return an error for intData()")
+  check(request.intData() == -1, "Expected uninitialized request to -1 intData()")
   check(strstr(key, actual) == key, "Expected uninitialized request to return empty string for getKey(), got: %s", actual);
 
   return 0;
@@ -150,9 +149,36 @@ error:
 
 int testApiRequestIntData(){
   ApiRequest request;
-  int data;
 
-  check(request.intData(&data) == -1, "Expected uninitialized request to return an error for intData()")
+  char requestData[] = "POST /some/key/0 HTTP/1.2\n"
+    "Host: localhost:8080\n"
+    "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0\n"
+    "Accept: application/json, text/plain, */*\n"
+    "Accept-Language: en-US,en;q=0.5\n"
+    "Accept-Encoding: gzip, deflate\n"
+    "Content-Type: text/plain\n"
+    "Content-Length: 3\n"
+    "Origin: null\n"
+    "Connection: keep-alive\n"
+  "\n"
+  "235\n";
+    
+  MockStream stream;
+  int actual = -2;
+  int expected = -1;
+  
+  stream.setSourceString(requestData, sizeof(requestData));
+  actual = request.intData();
+  check(actual == expected, "Expected uninitialized request to return %d for intData(), got: %d", expected, actual)
+  
+  request.setStream(&stream);
+
+  request.initialize();
+  
+  expected = 235;
+  actual = request.intData();
+  check(actual == 235, "Expected intData() to return: %d, got: %d ", expected, actual);
+
   return 0;
 error:
   return 1;
@@ -173,11 +199,17 @@ int testApiRequestGetKey(){
   request.setStream(&stream);
 
   request.initialize();
-  check(strstr(key1, request.getKey()) == key1, "Expected getKey() to return the key");
+  
+  char * actual =  request.getKey();
+  
+  check(strcmp(key1, actual) == 0, "Expected getKey() to return: %s, got %s", key1, actual);
+  
+  actual =  request.getKey();
+  check(strcmp(key1, actual) == 0, "Expected getKey() to return the same key if requested more than once (expected: %s, got %s)", key1, actual);
 
   stream.setSourceString(key2str, 23);
   request.initialize();
-  check(strstr(key2, request.getKey()) == key2, "Expected getKey() to return the key");
+  check(strcmp(key2, request.getKey()) == 0, "Expected getKey() to return the key");
 
   return 0;
 error:
