@@ -139,7 +139,6 @@ int Stream::read(void )
 
 int Stream::unread(char c)
 {
-  printf("from dummy\n");
   return ungetc(c, stdin); 
 }
 
