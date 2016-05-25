@@ -1,4 +1,5 @@
 #include "../handler/handler.h"
+#define KEY_BUFFER_SIZE 16
 
 class ApiServer;
 
@@ -48,7 +49,7 @@ private:
   Stream * stream;
   methods _method;
   int _id;
-  char _key[16];
+  char _key[KEY_BUFFER_SIZE];
   int _value;
 
 };

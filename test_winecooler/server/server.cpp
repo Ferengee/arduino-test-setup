@@ -32,22 +32,27 @@ ApiRequest::ApiRequest(){
   _method = NONE;
   stream = NULL;
   _id = -1;
-  _key[0] = '\0';
+  int i;
   _value = -1;
+
+  for(i=0; i <  KEY_BUFFER_SIZE; i++)
+    _key[i] = '\0';
+  
 }
 
 methods ApiRequest::method()
 {
- 
   return _method;
 }
 
 void ApiRequest::initialize()
 {
-
-   if(stream != NULL){
-    stream->readBytesUntil('/', _key, 5);
-    _key[4] = '\0';
+  int len = 0;
+  
+  if(stream != NULL){
+    len = stream->readBytesUntil('/', _key, KEY_BUFFER_SIZE);
+    _key[len] = '\0';
+    
     
     if (strstr(_key, "PUT ") == _key)
       _method = PUT;
@@ -57,8 +62,8 @@ void ApiRequest::initialize()
 
     else if (strstr(_key, "GET ") == _key)
       _method = GET;
-  
-    int len = stream->readBytesUntil('/', _key, 15);
+
+    len = stream->readBytesUntil('/', _key, KEY_BUFFER_SIZE -1);
     _key[len] = '\0';
     _id = stream->parseInt();
     
