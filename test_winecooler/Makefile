@@ -30,6 +30,9 @@ test: test_log test_handler test_server
 test_handler: tests/test_handler.cpp handler/handler.h handler/handler.cpp MockStream.o DummySerial.o
 	$(cc) $(gccflags) tests/test_handler.cpp handler/handler.cpp MockStream.o DummySerial.o -o test_handler  $(includes) $(libs)
 
+parse_http_request: tests/parse_http_request_from_stdin.cpp server/server.h server/server.cpp handler/handler.h handler/handler.cpp DummySerial.o
+	$(cc) $(gccflags) tests/parse_http_request_from_stdin.cpp server/server.h server/server.cpp handler/handler.cpp DummySerial.o -o parse_http_request_from_stdin  $(includes) $(libs)
+
 test_server: tests/test_server.cpp server/server.h server/server.cpp handler/handler.cpp MockStream.o DummySerial.o
 	$(cc) $(gccflags) tests/test_server.cpp server/server.cpp handler/handler.cpp MockStream.o DummySerial.o -o test_server  $(includes) $(libs)
 
@@ -39,6 +42,6 @@ test_log: tests/test_log.cpp lib.c lib.h
 
 clean:
 	find -name "*.o" -delete	
-	rm *~ 
+	find -name "*~" -delete 
 	find ../../arduino-libs/OfficeDistraction/ -name "*.o"
 	rm -f test_scheduler testrun test_server test_log test_handler
