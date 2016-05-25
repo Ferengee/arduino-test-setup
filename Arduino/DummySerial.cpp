@@ -156,10 +156,9 @@ size_t Stream::readBytesUntil(char delim, char * buffer, int max){
   int i = 0;
   int c = -1;
   while (i < max && (c = read()) > 0 ){
-    if ((char)c == delim){
-      unread(c);
+    if ((char)c == delim)
       break;
-    }
+    
     buffer[i] = (char)c;
     i++;
   }
