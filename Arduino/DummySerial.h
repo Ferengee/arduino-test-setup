@@ -48,7 +48,8 @@ public:
   size_t print(int c);
   size_t print(float c);
   size_t print(char c);
-
+protected:
+  virtual int unread(char c);
 
 private:
   int getSign(char c);

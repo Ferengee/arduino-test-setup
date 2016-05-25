@@ -11,3 +11,13 @@ int MockStream::read(void){
     return -1;
   return sourceString[head++];
 }
+
+int MockStream::unread(char c){
+  if (head >= max)
+    return -1;
+  
+  sourceString[--head] = c;
+  return 1;
+}
+
+

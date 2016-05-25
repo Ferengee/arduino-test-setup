@@ -131,18 +131,23 @@ bool Stream::stdin_available()
 int Stream::read(void )
 {
   if(stdin_available()){
-    printf("hit\n");
     return getchar();
   }else{
     return -1;
   }
 }
 
+int Stream::unread(char c)
+{
+  printf("from dummy\n");
+  return ungetc(c, stdin); 
+}
+
 int Stream::peek(void )
 { 
   int r = read(); 
   if(r > -1)
-    ungetc(r, stdin); 
+    unread(r);
   return r;
 }
 
@@ -150,9 +155,9 @@ int Stream::peek(void )
 size_t Stream::readBytesUntil(char delim, char * buffer, int max){
   int i = 0;
   int c = -1;
-  while ((c = read()) > 0 && i < max){
+  while (i < max && (c = read()) > 0 ){
     if ((char)c == delim){
-      ungetc(c, stdin);
+      unread(c);
       break;
     }
     buffer[i] = (char)c;
