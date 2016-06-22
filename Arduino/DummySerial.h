@@ -22,7 +22,7 @@ class Stream
 public:  
   Stream();
   void begin(int) { }
-  bool available(void) {return m_available;}
+  virtual bool available(void) {return m_available;}
   bool stdin_available(void);
   virtual int read(void);
   int peek(void);
@@ -37,8 +37,11 @@ public:
  /* size_t print(basic_stringstream<char>::__string_type  str);
   size_t println(basic_stringstream<char>::__string_type  str);*/
 
-  size_t print(const char str[]);
+  size_t print(const char str[]);  
   size_t println(const char str[]);
+  size_t print(const std::string str);
+  size_t println(const std::string str);
+
   size_t print(uint8_t c);
   size_t println(uint8_t c);
   size_t println(int c);
@@ -50,12 +53,12 @@ public:
   size_t print(char c);
 protected:
   virtual int unread(char c);
+  bool m_available;
 
 private:
   int getSign(char c);
   int isNumeric(char c);
   
-  bool m_available;
   int m_timeout;
   
 
@@ -63,7 +66,9 @@ private:
 
 class DummySerial : public Stream
 {
-  
+public:
+  virtual operator bool(){ return true;}
+
 };
 
 extern DummySerial Serial;

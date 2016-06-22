@@ -42,14 +42,20 @@ void Stream::setTimeout(long unsigned int new_timeout)
 size_t Stream::print(const char str[])
 {
   printf("%s", str);
-  
-  
   return 0;
-
 }
 size_t Stream::println(const char str[]){
   print(str);
   print("\n");
+  return 0;
+}
+
+size_t Stream::print(const std::string str){
+  cout << str;
+  return 0;
+}
+size_t Stream::println(const std::string str){
+  cout << str << "\n";
   return 0;
 }
 
