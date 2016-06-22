@@ -24,6 +24,10 @@ Arduino.o: ../Arduino/Arduino.cpp
 MockStream.o: ../Mocks/MockStream.cpp
 	$(cc) $(gccflags) -c ../Mocks/MockStream.cpp -o MockStream.o $(includes)
 
+ZmqStream.o: ../Mocks/ZmqStream.cpp
+	$(cc) $(gccflags) -c ../Mocks/ZmqStream.cpp -o ZmqStream.o $(includes) 
+
+
 test: test_log test_handler test_server
 	./test_log ; ./test_handler ; ./test_server
 
@@ -36,6 +40,11 @@ parse_http_request: tests/parse_http_request_from_stdin.cpp server/server.h serv
 test_server: tests/test_server.cpp server/server.h server/server.cpp handler/handler.cpp MockStream.o DummySerial.o
 	$(cc) $(gccflags) tests/test_server.cpp server/server.cpp handler/handler.cpp MockStream.o DummySerial.o -o test_server  $(includes) $(libs)
 
+test_zmq_stream: tests/test_zmq_stream.cpp ZmqStream.o DummySerial.o
+	$(cc) $(gccflags) tests/test_zmq_stream.cpp -o test_zmq_stream ZmqStream.o DummySerial.o $(includes) -lzmq
+
+webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o
+	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o $(includes)
 
 test_log: tests/test_log.cpp lib.c lib.h
 	$(cc) $(gccflags) tests/test_log.cpp lib.c -o test_log  $(includes) $(libs)
@@ -44,4 +53,4 @@ clean:
 	find -name "*.o" -delete	
 	find -name "*~" -delete 
 	find ../../arduino-libs/OfficeDistraction/ -name "*.o"
-	rm -f test_scheduler testrun test_server test_log test_handler
+	rm -f test_scheduler testrun test_server test_log test_handler test_zmq_stream webserver_example
