@@ -1,33 +1,63 @@
+#include <string>
+
+#include "ZmqStream.h"
 #include <Arduino.h>
+
 #define byte uint8_t
 
-class EthernetClient {
+class EthernetClient : public ZmqStream
+{
 public:
+  EthernetClient() : ZmqStream() {
+    reply.clear();
+  }
+  EthernetClient(const EthernetClient &other) : ZmqStream(other ){
+    reply = other.reply;
+  }
   bool connected(void){return true;}
-  bool available(void){return true;}
-  int read(void){return '\n';}
-  void print(const std::string line) {cout << line;}
-  void print(int val) {printf("%d", val);}
+  void print(const std::string line) {reply.append(line);}
+  void print(int val) {reply.append(std::to_string( val));}
 
-  void println(const std::string line) {cout << line << "\n";}
-  void println() {cout << "\n";}
+  void println(const std::string line) {reply.append(line).append("\n");}
+  void println() {reply.append("\n");}
 
-  void stop(){}
+  void stop(){
+    write(reply);
+    reply.clear();
+    
+  }
   virtual operator bool(){return this->available();}
+private:
+  std::string reply;
 };
 
 
 class EthernetServer 
 {
 public:
-  EthernetServer(int port) {}
-  void begin(void){}
+  EthernetServer(int port) {
+
+
+  }
+  void begin(void){
+
+    responder = new zmq::socket_t(context, ZMQ_REP);
+    printf("binding ");
+    responder->bind("tcp://*:5559");
+    printf("binded...\n");
+    client.setSocket(responder);
+        printf("socket set...\n");
+    return;
+  }
+  
   EthernetClient available(void){
     return client;
   }
 private:
   EthernetClient client;
-  
+  zmq::socket_t * responder;
+  zmq::context_t context;
+
 };
 
 class IPAddress
@@ -53,6 +83,9 @@ MockEthernet Ethernet;
 
 int main()
 {
+  
+ 
+  
   setup();
   
   for(;;){

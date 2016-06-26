@@ -1,6 +1,6 @@
 libs = 
 gccflags = -Wall -fpermissive -g
-cc = g++
+cc = g++ --std=c++11
 
 include_paths = ../Arduino . ../Arduino/libraries/Schedulers ../Mocks
 includes =$(foreach d, $(include_paths), -I$d)
@@ -43,8 +43,8 @@ test_server: tests/test_server.cpp server/server.h server/server.cpp handler/han
 test_zmq_stream: tests/test_zmq_stream.cpp ZmqStream.o DummySerial.o
 	$(cc) $(gccflags) tests/test_zmq_stream.cpp -o test_zmq_stream ZmqStream.o DummySerial.o $(includes) -lzmq
 
-webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o
-	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o $(includes)
+webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o ZmqStream.o
+	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o ZmqStream.o $(includes) -lzmq
 
 test_log: tests/test_log.cpp lib.c lib.h
 	$(cc) $(gccflags) tests/test_log.cpp lib.c -o test_log  $(includes) $(libs)
