@@ -1,0 +1,139 @@
+<!doctype html>
+<html ng-app="post">
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.6/Chart.js"></script>
+
+<script>
+
+
+var app = angular.module('post', []);
+
+app.config(['$httpProvider', function($httpProvider) {
+        $httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    }
+]);
+
+app.controller('LineCtrl', function ($scope) {
+    $scope.labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    $scope.series = ['Series A', 'Series B'];
+    $scope.data = [
+      [65, 59, 80, 81, 56, 55, 40],
+      [28, 48, 40, 19, 86, 27, 90]
+    ];
+    $scope.onClick = function (points, evt) {
+      console.log(points, evt);
+    };
+    $scope.onHover = function (points) {
+      if (points.length > 0) {
+        console.log('Point', points[0].value);
+      } else {
+        console.log('No point');
+      }
+    };
+    $scope.datasetOverride = [{ yAxisID: 'y-axis-1' }, { yAxisID: 'y-axis-2' }];
+
+    $scope.options = {
+      scales: {
+        yAxes: [
+          {
+            id: 'y-axis-1',
+            type: 'linear',
+            display: true,
+            position: 'left'
+          },
+          {
+            id: 'y-axis-2',
+            type: 'linear',
+            display: true,
+            position: 'right'
+          }
+        ]
+      }
+    };
+  });      
+
+
+ chart = false;
+function updateChart(data){
+  console.log(data);
+  if (chart){
+    chart.data.datasets[0].data = data;
+    chart.update();
+  } else { 
+    var ctx = document.getElementById("line");
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["1", "2", "3", "4", "5", "6", "7","8","9"],
+            datasets: [{
+                label: 'Temperature',
+                data: data,
+              
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }],
+                xAxes: [{
+                  type: 'linear',
+                  position: 'bottom',
+                  ticks: {
+                      min: 1,
+                      max: 1000
+                  }
+              }]
+            }
+        }
+    });
+  }
+}
+
+app.controller('SendCtrl', function ($http, $scope) {
+  $scope.clickReceive = function(){
+    $http.get("http://localhost:8080/variable/0").then( function(d){
+      console.log("d:" , d);
+      var flattend = d.data.temp.reduce(function(acc, item){ return acc.concat(item)},[]);
+      var x = 1;
+      data = flattend.map(function(sample){
+        x = x * 3; 
+        return {y:sample, x: x};
+      });
+      console.log(data);
+      updateChart(data);
+    });
+  };
+
+  $scope.clickSend = function(){
+    console.log("click");
+    var value = 235;
+    $http.defaults.headers.post["Content-Type"] = "text/plain";
+    $http.post("http://localhost:8080/variable/0", value);
+  };
+});
+</script>
+</head>
+<body>
+
+<div ng-controller="LineCtrl">
+<canvas id="line" class="chart chart-line" chart-data="data"
+chart-labels="labels" chart-series="series" chart-options="options"
+chart-dataset-override="datasetOverride" chart-click="onClick">
+</canvas> 
+<button ng-click="test()">test</button>
+</div>
+
+<p ng-controller="SendCtrl">
+  <button ng-click="clickSend()">send</button>
+
+  <button ng-click="clickReceive()">receive</button>
+
+</p>
+</body>
+</html>
