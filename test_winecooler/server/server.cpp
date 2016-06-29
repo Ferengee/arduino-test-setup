@@ -70,10 +70,11 @@ void ApiRequest::initialize()
     if (_method == POST){
       char lastchar = stream->read();
       char current = stream->read();
-      while (!(lastchar == '\n' && current == '\n') && current > 0 && lastchar > 0 ){
+      while (!(lastchar == '\n' && current == '\r') && current > 0 && lastchar > 0 ){
         lastchar = current;
         current = stream->read();
       }
+      current = stream->read();
       _value = stream->parseInt();
     }
   }

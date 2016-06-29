@@ -150,18 +150,18 @@ error:
 int testApiRequestIntData(){
   ApiRequest request;
 
-  char requestData[] = "POST /some/key/0 HTTP/1.2\n"
-    "Host: localhost:8080\n"
-    "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0\n"
-    "Accept: application/json, text/plain, */*\n"
-    "Accept-Language: en-US,en;q=0.5\n"
-    "Accept-Encoding: gzip, deflate\n"
-    "Content-Type: text/plain\n"
-    "Content-Length: 3\n"
-    "Origin: null\n"
-    "Connection: keep-alive\n"
-  "\n"
-  "235\n";
+  char requestData[] = "POST /some/key/0 HTTP/1.2\r\n"
+    "Host: localhost:8080\r\n"
+    "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0\r\n"
+    "Accept: application/json, text/plain, */*\r\n"
+    "Accept-Language: en-US,en;q=0.5\r\n"
+    "Accept-Encoding: gzip, deflate\r\n"
+    "Content-Type: text/plain\r\n"
+    "Content-Length: 3\r\n"
+    "Origin: null\r\n"
+    "Connection: keep-alive\r\n"
+  "\r\n"
+  "235\r\n";
     
   MockStream stream;
   int actual = -2;
