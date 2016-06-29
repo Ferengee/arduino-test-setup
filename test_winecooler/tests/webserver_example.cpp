@@ -18,8 +18,8 @@ public:
   void print(const std::string line) {reply.append(line);}
   void print(int val) {reply.append(std::to_string( val));}
 
-  void println(const std::string line) {reply.append(line).append("\n");}
-  void println() {reply.append("\n");}
+  void println(const std::string line) {reply.append(line).append("\r\n");}
+  void println() {reply.append("\r\n");}
 
   void stop(){
     write(reply);
@@ -40,13 +40,9 @@ public:
 
   }
   void begin(void){
-
     responder = new zmq::socket_t(context, ZMQ_REP);
-    printf("binding ");
     responder->bind("tcp://*:5559");
-    printf("binded...\n");
     client.setSocket(responder);
-        printf("socket set...\n");
     return;
   }
   

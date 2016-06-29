@@ -20,6 +20,60 @@
 #include <SPI.h>
 #include <Ethernet.h>
 */
+
+#include <Schedulers.h>
+#include "lib.c"
+#include "server/server.h"
+
+
+#define LINK_COUNT 3
+
+Scheduler sampler;
+
+Schedulers schedulers;
+
+AggregatingLog temp[LINK_COUNT];
+//AggregatingLog pressure[LINK_COUNT];
+
+AnalogSampler tempSensor;
+//AnalogSampler pressureSensor;
+
+
+
+char output[40];
+
+void printChain(){
+  
+  Serial.println("temp:" );
+
+  temp->chainToJSON(output);
+  Serial.println(output);
+
+  //Serial.println("pressure:" );
+  //pressure->chainToJSON(output);
+
+  //Serial.println(output);
+}
+
+
+void takeSample(void * nothing){
+  /*analogRead(A0);
+  delay(10);
+  temp->add(analogRead(A0));
+  delay(10);
+  
+  analogRead(A1);
+  delay(10);
+  pressure->add(analogRead(A1));
+  delay(10);
+*/
+  tempSensor.sample();
+ //pressureSensor.sample();
+  
+ printChain();
+}
+  
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -44,6 +98,19 @@ void setup() {
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
+  
+  AggregatingLog::linkChain(temp, LINK_COUNT);
+  //AggregatingLog::linkChain(pressure, LINK_COUNT);
+  
+  tempSensor.pin = A0;
+  //pressureSensor.pin = A1;
+  
+  tempSensor.log = temp;
+  //pressureSensor.log = pressure;
+
+  sampler.every(500, takeSample, NULL);
+  
+  schedulers.attach(sampler);
 }
 
 
@@ -63,23 +130,16 @@ void loop() {
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
+          client.println("HTTP/1.1 200/OK");
+          client.println("Access-Control-Allow-Origin: * ");
+          client.println("Content-Type: text/plain");
           client.println("Connection: close");  // the connection will be closed after completion of the response
-          client.println("Refresh: 5");  // refresh the page automatically every 5 sec
           client.println();
-          client.println("<!DOCTYPE HTML>");
-          client.println("<html>");
-          // output the value of each analog input pin
-          for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
-            int sensorReading = analogRead(analogChannel);
-            client.print("analog input ");
-            client.print(analogChannel);
-            client.print(" is ");
-            client.print(sensorReading);
-            client.println("<br />");
-          }
-          client.println("</html>");
+          client.print("{\"temp\":");
+          temp->chainToJSON(output);
+          client.print(output);
+          client.print("}");
+         
           break;
         }
         if (c == '\n') {
@@ -98,6 +158,12 @@ void loop() {
     Serial.println("client disconnected");
     
     // pause for testing
-    delay(1000);
-  }
+  } 
+      delay(500);
+
+    
+    schedulers.trigger();
+
 }
+
+

@@ -9,9 +9,9 @@ requester.connect("tcp://localhost:5559")
  
 webserver = TCPServer.new('localhost', 8080)
 while (session = webserver.accept)
-  session.print "HTTP/1.1 200/OK\r\n"
-  session.print "Access-Control-Allow-Origin: * \r\n"
-  session.print "Content-type:text/html\r\n\r\n"
+#  session.print "HTTP/1.1 200/OK\r\n"
+#  session.print "Access-Control-Allow-Origin: * \r\n"
+#  session.print "Content-type:text/html\r\n\r\n"
   request = ""
   line = session.gets 
   content_length = 0
@@ -34,4 +34,5 @@ while (session = webserver.accept)
 
   reply = requester.recv_string(string = '')
   session.print string
+  session.close
 end
