@@ -54,7 +54,7 @@ bool ZmqStream::available(void) {
     return true;
   
 
-  if(m_available == false && socket->recv(message), ZMQ_NOBLOCK){
+  if(m_available == false && socket->recv(message, ZMQ_NOBLOCK)){
     m_available = true;
     current_pos = 0;
   } else {
