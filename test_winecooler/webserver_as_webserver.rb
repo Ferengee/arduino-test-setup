@@ -17,15 +17,17 @@ while (session = webserver.accept)
   content_length = 0
   
   while line.chomp != "" do
-    line = session.gets
     cl_line = line.match(/^Content-Length: (\d+)/)
     if cl_line
       content_length =  cl_line[1].to_i
     end
     request += line
+    line = session.gets
+
   end
   
   if content_length > 0
+    request += "\r\n"
     request += session.read(content_length)
   end
   puts "request:"
