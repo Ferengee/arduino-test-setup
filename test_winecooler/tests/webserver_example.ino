@@ -16,10 +16,9 @@
  by Arturo Guadalupi
 
  */
-/*
+
 #include <SPI.h>
 #include <Ethernet.h>
-*/
 
 #include <Schedulers.h>
 #include "lib.c"
