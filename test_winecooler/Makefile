@@ -37,14 +37,23 @@ test_handler: tests/test_handler.cpp handler/handler.h handler/handler.cpp MockS
 parse_http_request: tests/parse_http_request_from_stdin.cpp server/server.h server/server.cpp handler/handler.h handler/handler.cpp DummySerial.o
 	$(cc) $(gccflags) tests/parse_http_request_from_stdin.cpp server/server.h server/server.cpp handler/handler.cpp DummySerial.o -o parse_http_request_from_stdin  $(includes) $(libs)
 
-test_server: tests/test_server.cpp server/server.h server/server.cpp handler/handler.cpp MockStream.o DummySerial.o
-	$(cc) $(gccflags) tests/test_server.cpp server/server.cpp handler/handler.cpp MockStream.o DummySerial.o -o test_server  $(includes) $(libs)
+test_server: tests/test_server.cpp server/server.h server/server.cpp handler/handler.cpp MockStream.o DummySerial.o ZmqStream.o
+	$(cc) $(gccflags) tests/test_server.cpp server/server.cpp handler/handler.cpp MockStream.o DummySerial.o ZmqStream.o -o test_server  $(includes) $(libs) -lzmq
+
+server.o: server/server.h server/server.cpp
+	$(cc) $(gccflags) -c server/server.cpp -o server.o $(includes) 
+
+handler.o: handler/handler.h handler/handler.cpp
+	$(cc) $(gccflags) -c handler/handler.cpp -o handler.o $(includes) 
+
+MockEthernet.o: ../Mocks/Ethernet.cpp ../Mocks/Ethernet.h
+	$(cc) $(gccflags) -c ../Mocks/Ethernet.cpp -o MockEthernet.o $(includes)
 
 test_zmq_stream: tests/test_zmq_stream.cpp ZmqStream.o DummySerial.o
 	$(cc) $(gccflags) tests/test_zmq_stream.cpp -o test_zmq_stream ZmqStream.o DummySerial.o $(includes) -lzmq
 
-webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o ZmqStream.o Schedulers.o server/server.h server/server.cpp handler/handler.cpp
-	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o ZmqStream.o Schedulers.o server/server.cpp handler/handler.cpp $(includes) -lzmq
+webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o ZmqStream.o MockEthernet.o Schedulers.o server.o handler.o
+	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o ZmqStream.o MockEthernet.o Schedulers.o server.o handler.o $(includes) -lzmq
 
 test_log: tests/test_log.cpp lib.c lib.h
 	$(cc) $(gccflags) tests/test_log.cpp lib.c -o test_log  $(includes) $(libs)

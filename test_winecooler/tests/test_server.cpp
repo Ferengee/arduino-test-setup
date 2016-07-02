@@ -1,13 +1,28 @@
+#include <Ethernet.h>
+
 #include "server/server.h"
 #include "handler/handler.h"
 
 #include "dbg.h"
 #include <DummySerial.h>
+
 #include <MockStream.h>
 
 
 int testCreate(){
   ApiServer server;
+  
+  check(&server != NULL, "bogus check")
+
+  return 0;
+error:
+  return 1;
+  
+}
+
+int testCreateWithEthernetServer(){
+  EthernetServer http = EthernetServer(80);
+  ApiServer server(http);
   
   check(&server != NULL, "bogus check")
 
@@ -76,19 +91,60 @@ error:
   
 }
 
+class MockEthernetServer : public EthernetServer
+{
+public:
+  MockEthernetServer() : EthernetServer(80){}
+  virtual EthernetClient available(){
+    return client;
+  }
+  
+private:
+  EthernetClient client;
+};
+
+int testHandleIncommingRequests(){
+  MockEthernetServer http;
+  ApiServer server(http);
+  server.handleIncommingRequests();
+  
+  // should delegate the request to handlers if the request is valid
+  return 0;
+
+  }
+
 int testCreateApiRequest(){
   ApiRequest request;
   char key[1] = "";
   char * actual = request.getKey();
 
-  check(request.method() == NONE, "Expected uninitialized request to have no type")
-  check(request.intData() == -1, "Expected uninitialized request to -1 intData()")
+  check(request.method() == NONE, "Expected uninitialized request to have no type");
+  check(request.intData() == -1, "Expected uninitialized request to -1 intData()");
   check(strstr(key, actual) == key, "Expected uninitialized request to return empty string for getKey(), got: %s", actual);
 
   return 0;
 error:
   return 1;
   
+}
+
+int testApiRequestRoot(){
+  MockStream stream;
+  char getstr[] = "GET / HTTP/1.1\n";
+  stream.setSourceString(getstr, 15);
+
+  ApiRequest request;
+  request.setStream(&stream);
+
+
+  char * actual = request.getKey();
+  check(strcmp("", actual) == 0, "Expected getKey() to return:'', got '%s'",  actual);
+  check(request.valid(), "Expected the request parsed from: '%s' to be valid.\n", getstr);
+  check(request.valid(), "Expected valid to return the same the second time.\n");
+  check(request.getInstanceId() == -1, "Expected no id to be found.\n");
+  return 0;
+error:
+  return 1;
 }
 
 int testApiRequestMethod(){
@@ -103,7 +159,7 @@ int testApiRequestMethod(){
   check(request.method() == NONE, "Expected uninitialized request to have no type");
   
   request.setStream(&stream);
-  request.initialize();
+  request.valid();
   
   check(request.method() == GET, "Expected request to read method from stream");
   
@@ -125,21 +181,24 @@ int testApiRequestGetInstanceId(){
   char idstr[] = "GET /variable/17 HTTP/1.1\n";
   char noidstr[] = "PUT /variable/ HTTP/1.1\n";
   int id = -2;
+  bool is_valid = false;
+  
   stream.setSourceString(idstr, 26);
   
   ApiRequest request;
 
-  check(request.getInstanceId() == -1, "Expected uninitialized request to return an error for getInstanceId()")
+  check(request.getInstanceId() == -1, "Expected uninitialized request to return an error for getInstanceId()");
  
   request.setStream(&stream);
 
-  request.initialize();
+  is_valid = request.valid();
   
+  check(is_valid, "Expected the request parsed from: '%s' to be valid.\n", idstr);
   id = request.getInstanceId();
   check(id == 17, "Expected id to be set to 17, got %d", id);
   
   stream.setSourceString(noidstr, 25);
-  request.initialize();
+  request.valid();
 
 
   return 0;
@@ -169,11 +228,11 @@ int testApiRequestIntData(){
   
   stream.setSourceString(requestData, sizeof(requestData));
   actual = request.intData();
-  check(actual == expected, "Expected uninitialized request to return %d for intData(), got: %d", expected, actual)
+  check(actual == expected, "Expected uninitialized request to return %d for intData(), got: %d", expected, actual);
   
   request.setStream(&stream);
 
-  request.initialize();
+  request.valid();
   
   expected = 235;
   actual = request.intData();
@@ -198,7 +257,7 @@ int testApiRequestGetKey(){
     
   request.setStream(&stream);
 
-  request.initialize();
+  request.valid();
   
   char * actual =  request.getKey();
   
@@ -209,7 +268,7 @@ int testApiRequestGetKey(){
 
   stream.setSourceString(key2str, 23);
   request.initialize();
-  check(strcmp(key2, request.getKey()) == 0, "Expected getKey() to return the key");
+  check(strcmp(key2, request.getKey()) == 0, "Expected getKey() to return the key, got: %s", request.getKey());
 
   return 0;
 error:
@@ -222,10 +281,13 @@ int main(){
   printf("running server tests:");
   
   e = e || testCreate();
+  e = e || testCreateWithEthernetServer();
   e = e || testOn();
   e = e || testHandle();
-  e = e || testCreateApiRequest();
+  e = e || testHandleIncommingRequests();
 
+  e = e || testCreateApiRequest();
+  e = e || testApiRequestRoot();
   e = e || testApiRequestGetInstanceId();
   e = e || testApiRequestIntData();
   e = e || testApiRequestGetKey();

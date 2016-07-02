@@ -123,31 +123,33 @@ void loop() {
     // an http request ends with a blank line
     request.setStream(&client);
 
-    request.initialize();
+    if(request.valid()){
     
-    int value = 17;
-          // send a standard http response header
-    client.println("HTTP/1.1 200/OK");
-    client.println("Access-Control-Allow-Origin: * ");
-    client.println("Content-Type: text/plain");
-    client.println("Connection: close");  // the connection will be closed after completion of the response
-    client.println();
-    client.print("{\"temp\":");
-      temp->chainToJSON(output);
-    client.print(output);
-    client.print(",\"key\":\"");
-    client.print(request.getKey());
-    client.print("\",\"id\":");
-    client.print(request.getInstanceId());
-    
-    client.print(",\"value\":");
+      int value = 17;
+            // send a standard http response header
+      client.println("HTTP/1.1 200/OK");
+      client.println("Access-Control-Allow-Origin: * ");
+      client.println("Content-Type: text/plain");
+      client.println("Connection: close");  // the connection will be closed after completion of the response
+      client.println();
+      client.print("{\"temp\":");
+        temp->chainToJSON(output);
+      client.print(output);
+      client.print(",\"key\":\"");
+      client.print(request.getKey());
+      client.print("\",\"id\":");
+      client.print(request.getInstanceId());
+      
+      client.print(",\"value\":");
 
-    if (request.method() != GET)
-      value = request.intData();
-    
-    client.print(value);
-    client.print("}");
-          
+      if (request.method() != GET)
+        value = request.intData();
+      
+      client.print(value);
+      client.println("}");
+    }else{
+      client.println("HTTP/1.1 404/Not Found");
+    }
     delay(1);
     // close the connection:
     client.stop();

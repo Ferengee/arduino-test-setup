@@ -32,7 +32,6 @@ private:
   std::string reply;
 };
 
-
 class EthernetServer 
 {
 public:
@@ -40,12 +39,7 @@ public:
 
 
   }
-  void begin(void){
-    responder = new zmq::socket_t(context, ZMQ_REP);
-    responder->bind("tcp://*:5559");
-    client.setSocket(responder);
-    return;
-  }
+  void begin(void);
   
   EthernetClient available(void){
     return client;
@@ -53,7 +47,6 @@ public:
 private:
   EthernetClient client;
   zmq::socket_t * responder;
-  zmq::context_t context;
 
 };
 
@@ -73,6 +66,5 @@ public:
   void begin(byte mac[6], IPAddress ip){}
   const std::string localIP(){ return "";}
 };
-MockEthernet Ethernet;
 
 #endif

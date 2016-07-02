@@ -13,10 +13,14 @@ LocationConfig * ApiServer::on(const char * location)
   return &config;
 }
 
-ApiServer::ApiServer(){
+ApiServer::ApiServer() {
   config.server = this;
   handlers = NULL;
 }
+// TODO:
+// handleRequests should create a ApiRequest
+// and initialize it with the client
+// close the client with client.stop() after a handler has succesfully handled the ApiRequest
 
 void ApiServer::handle(const char * location)
 {
@@ -28,7 +32,20 @@ void ApiServer::handle(const char * location)
   
 }
 
+void ApiServer::handleIncommingRequests()
+{
+  ApiRequest request;
+  EthernetClient client = server.available();
+  if(client){
+    request.setStream(&client);
+    if(request.valid()){
+      delegate(&request);
+    };
+  }
+}
+
 ApiRequest::ApiRequest(){
+  state = UNKNOWN;
   _method = NONE;
   stream = NULL;
   _id = -1;
@@ -45,27 +62,41 @@ methods ApiRequest::method()
   return _method;
 }
 
-void ApiRequest::initialize()
+bool ApiRequest::valid()
 {
+  if (state == UNKNOWN)
+    state = initialize();
+  return state == VALID;
+}
+
+requestState ApiRequest::initialize(){
   int len = 0;
   
   if(stream != NULL){
     len = stream->readBytesUntil('/', _key, KEY_BUFFER_SIZE);
+    if (len == 0)
+      return INVALID;
     _key[len] = '\0';
     
     
     if (strstr(_key, "PUT ") == _key)
       _method = PUT;
     
-    if (strstr(_key, "POST") == _key)
+    else if (strstr(_key, "POST") == _key)
       _method = POST;
 
     else if (strstr(_key, "GET ") == _key)
       _method = GET;
-
+    
+    else 
+      return INVALID;
+    
     len = stream->readBytesUntil('/', _key, KEY_BUFFER_SIZE -1);
     _key[len] = '\0';
-    _id = stream->parseInt();
+    if(strstr(_key, " HTTP") == _key)
+      _key[0] = '\0';
+    else
+      _id = stream->parseInt();
     
     if (_method == POST){
       char lastchar = stream->read();
@@ -77,7 +108,9 @@ void ApiRequest::initialize()
       current = stream->read();
       _value = stream->parseInt();
     }
+    return VALID;
   }
+  return INVALID;
 }
 
 int ApiRequest::getInstanceId(){
