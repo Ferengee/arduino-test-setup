@@ -51,6 +51,18 @@ error:
   return 1;
 }
 
+int testCanHandle(){
+  AbstractHandler handler;
+  check(handler.canHandle(loc) == false, "Expected canHandle to return false if location does not match");
+
+  handler.setLocation(loc);
+  check(handler.canHandle(loc), "Expect canHandle to return true if location and loc match");
+
+  return 0;
+error:
+  return 1;
+}
+
 int testLink(){
   HandlerList item1;
   HandlerList item2;
@@ -81,6 +93,7 @@ int main(){
   e = e || testCreate();
   e = e || testSetLocation();
   e = e || testLink();
+  e = e || testCanHandle();
 
 
   if(e > 0)

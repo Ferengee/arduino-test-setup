@@ -28,7 +28,7 @@ public:
   const char * getLocation(void);
   void setLocation(const char * location);
   virtual bool canHandle(const char * location){
-    return false;
+    return this->location != NULL && strcmp(location, this->location) == 0;
   }
   virtual bool handle(ApiRequest * request){
     return false;

@@ -16,16 +16,19 @@ public:
     reply = other.reply;
   }
   bool connected(void){return true;}
-  void print(const std::string line) {reply.append(line);}
-  void print(int val) {reply.append(std::to_string( val));}
-
-  void println(const std::string line) {reply.append(line).append("\r\n");}
-  void println() {reply.append("\r\n");}
+  
+  virtual size_t print(const std::string str);
+  virtual size_t print(int val);
+  
+  virtual size_t println(const std::string str);
+  virtual size_t println();
+  
+  virtual size_t print(const char str[]);
+  virtual size_t println(const char str[]);
 
   void stop(){
     write(reply);
     reply.clear();
-    
   }
   virtual operator bool(){return this->available();}
 private:

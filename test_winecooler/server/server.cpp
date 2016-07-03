@@ -22,14 +22,16 @@ ApiServer::ApiServer() {
 // and initialize it with the client
 // close the client with client.stop() after a handler has succesfully handled the ApiRequest
 
-void ApiServer::handle(const char * location)
+bool ApiServer::delegate(ApiRequest * request)
 {
   HandlerList * item = handlers;
   while(item != NULL){
-    ((AbstractHandler *)item)->canHandle(location);
+    if (((AbstractHandler *)item)->canHandle(request->getKey())){
+      return ((AbstractHandler *)item)->handle(request);
+    }
     item = item->next();
   }
-  
+  return false;
 }
 
 void ApiServer::handleIncommingRequests()
@@ -39,8 +41,12 @@ void ApiServer::handleIncommingRequests()
   if(client){
     request.setStream(&client);
     if(request.valid()){
-      delegate(&request);
+      if (!delegate(&request)){
+        client.println("HTTP/1.1 501 Not Implemented");
+      }
     };
+    delay(1);
+    client.stop();
   }
 }
 
@@ -67,6 +73,25 @@ bool ApiRequest::valid()
   if (state == UNKNOWN)
     state = initialize();
   return state == VALID;
+}
+
+void ApiRequest::sendJsonHeaders()
+{   
+    stream->println("HTTP/1.1 200/OK");
+    stream->println("Access-Control-Allow-Origin: * ");
+    stream->println("Content-Type: text/plain");
+    stream->println("Connection: close");  // the connection will be closed after completion of the response
+    stream->println();
+}
+
+void ApiRequest::respond(char * body)
+{
+  stream->println(body);
+}
+
+void ApiRequest::respond(int body)
+{
+  stream->println(body);    
 }
 
 requestState ApiRequest::initialize(){

@@ -26,15 +26,17 @@ public:
   ApiServer(EthernetServer &http){
     server = http;
   };
+  void begin(void){
+    server.begin();
+  }
   LocationConfig * on(const char * location);
-  void handle(const char * location);
   void handleIncommingRequests();
 
 protected:
   HandlerList * handlers;
 
 private:
-  void delegate(ApiRequest * request){}
+  bool delegate(ApiRequest * request);
   LocationConfig config;
   EthernetServer server = EthernetServer(80);
   
@@ -51,6 +53,11 @@ public:
   ApiRequest();
   void setStream(Stream * stream){ this->stream = stream;}
   bool valid();
+  void sendJsonHeaders();
+
+  void respond(char * body);
+  void respond(int body);
+  
   requestState initialize();
   methods method();
   int getInstanceId();

@@ -23,36 +23,42 @@
 #include <Schedulers.h>
 #include "lib.c"
 #include "server/server.h"
-
+#include "handler/handler.h"
 
 #define LINK_COUNT 3
+#define LOG_COUNT 2
+
+class SensorHandler : public AbstractHandler {
+public:
+  SensorHandler(){}
+  
+  virtual bool handle(ApiRequest * request){
+    uint8_t id = request->getInstanceId();
+    char output[44];
+    if(id > 0 && id <= LOG_COUNT){
+      logs[id -1]->chainToJSON(output);
+      request->sendJsonHeaders();
+      request->respond(output);
+      return true;
+    }
+    return false;
+  }
+  
+  AggregatingLog logs[LOG_COUNT][LINK_COUNT];
+};
+
 
 Scheduler sampler;
 
 Schedulers schedulers;
 
-AggregatingLog temp[LINK_COUNT];
 //AggregatingLog pressure[LINK_COUNT];
 
 AnalogSampler tempSensor;
 //AnalogSampler pressureSensor;
 
 
-
-char output[40];
-
-void printChain(){
-  
-  Serial.println("temp:" );
-
-  temp->chainToJSON(output);
-  Serial.println(output);
-
-  //Serial.println("pressure:" );
-  //pressure->chainToJSON(output);
-
-  //Serial.println(output);
-}
+SensorHandler sensors;
 
 
 void takeSample(void * nothing){
@@ -68,8 +74,6 @@ void takeSample(void * nothing){
 */
   tempSensor.sample();
  //pressureSensor.sample();
-  
- printChain();
 }
   
 
@@ -83,7 +87,8 @@ IPAddress ip(192, 168, 1, 177);
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-EthernetServer server(80);
+ApiServer server;
+
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -94,17 +99,20 @@ void setup() {
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
+  
+  server.on("sensors")->use(&sensors);
+  
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
   
-  AggregatingLog::linkChain(temp, LINK_COUNT);
+  AggregatingLog::linkChain(sensors.logs[0], LINK_COUNT);
   //AggregatingLog::linkChain(pressure, LINK_COUNT);
   
   tempSensor.pin = A0;
   //pressureSensor.pin = A1;
   
-  tempSensor.log = temp;
+  tempSensor.log = sensors.logs[0];
   //pressureSensor.log = pressure;
 
   sampler.every(500, takeSample, NULL);
@@ -114,18 +122,10 @@ void setup() {
 
 
 void loop() {
-  // listen for incoming clients
-  EthernetClient client = server.available();
-  ApiRequest request;
-
-  if (client) {
-    Serial.println("new client");
-    // an http request ends with a blank line
-    request.setStream(&client);
-
-    if(request.valid()){
+  server.handleIncommingRequests();
     
-      int value = 17;
+   /*
+    *   int value = 17;
             // send a standard http response header
       client.println("HTTP/1.1 200/OK");
       client.println("Access-Control-Allow-Origin: * ");
@@ -147,17 +147,10 @@ void loop() {
       
       client.print(value);
       client.println("}");
-    }else{
-      client.println("HTTP/1.1 404/Not Found");
-    }
-    delay(1);
-    // close the connection:
-    client.stop();
-    Serial.println("client disconnected");
     
     // pause for testing
   } 
-      
+     */ 
     delay(500);
 
     

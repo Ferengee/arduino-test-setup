@@ -37,20 +37,22 @@ public:
  /* size_t print(basic_stringstream<char>::__string_type  str);
   size_t println(basic_stringstream<char>::__string_type  str);*/
 
-  size_t print(const char str[]);  
-  size_t println(const char str[]);
-  size_t print(const std::string str);
-  size_t println(const std::string str);
+  virtual size_t print(const char str[]);  
+  virtual size_t println(const char str[]);
+  virtual size_t print(const std::string str);
+  virtual size_t println(const std::string str);
+  virtual size_t println(){return 0;}
 
-  size_t print(uint8_t c);
-  size_t println(uint8_t c);
-  size_t println(int c);
-  size_t println(float c);
-  size_t println(char c);
 
-  size_t print(int c);
-  size_t print(float c);
-  size_t print(char c);
+  virtual size_t print(uint8_t c);
+  virtual size_t println(uint8_t c);
+  virtual size_t println(int c);
+  virtual size_t println(float c);
+  virtual size_t println(char c);
+
+  virtual size_t print(int c);
+  virtual size_t print(float c);
+  virtual size_t print(char c);
 protected:
   virtual int unread(char c);
   bool m_available;

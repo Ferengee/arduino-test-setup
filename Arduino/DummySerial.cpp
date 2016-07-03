@@ -59,7 +59,6 @@ size_t Stream::println(const std::string str){
   return 0;
 }
 
-
 size_t Stream::print(uint8_t c)
 {
   printf("%d", c);
