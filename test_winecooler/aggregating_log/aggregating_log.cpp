@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "lib.h"
+#include "aggregating_log.h"
 
 AggregatingLog::AggregatingLog(){
   int i;
@@ -50,7 +50,7 @@ int AggregatingLog::toJSON(char * out){
   for(i = 1; i < AGGREGATING_LOG_SIZE + 1; i++){
     int pos = (AGGREGATING_LOG_SIZE + this->cursor - i) % AGGREGATING_LOG_SIZE;
     
-    written = snprintf(cursor, 5, ",%d", this->values[pos]);
+    written = snprintf(cursor, 6, ",%d", this->values[pos]);
     if (written > 0)
       cursor = cursor + written;
   }

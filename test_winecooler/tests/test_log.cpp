@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "dbg.h"
-#include "lib.h"
+#include "aggregating_log/aggregating_log.h"
 
 
 #define TRUE 1
@@ -111,7 +111,7 @@ int testToJSON(){
   uint8_t someValues[3] = {8, 10, 20}; 
   int i;
   
-  char out[14];
+  char out[40];
   
   AggregatingLog buffer;
   
@@ -122,6 +122,11 @@ int testToJSON(){
     buffer.add(someValues[i]);
   }
   buffer.toJSON(out);
+  check(strncmp(out, "[1024,20,10]", 8) == 0, "Expected analogBufferToJSON(&buffer) to be [1024,20,10], got: %s", out);
+  
+  buffer.add(1023);
+  buffer.toJSON(out);
+
   check(strncmp(out, "[20,10,8]", 8) == 0, "Expected analogBufferToJSON(&buffer) to be [20,10,8], got: %s", out);
 
   

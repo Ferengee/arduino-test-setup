@@ -42,7 +42,7 @@ void ApiServer::handleIncommingRequests()
     request.setStream(&client);
     if(request.valid()){
       if (!delegate(&request)){
-        client.println("HTTP/1.1 501 Not Implemented");
+        client.println(F("HTTP/1.1 501 Not Implemented"));
       }
     };
     delay(1);
@@ -77,10 +77,10 @@ bool ApiRequest::valid()
 
 void ApiRequest::sendJsonHeaders()
 {   
-    stream->println("HTTP/1.1 200/OK");
-    stream->println("Access-Control-Allow-Origin: * ");
-    stream->println("Content-Type: text/plain");
-    stream->println("Connection: close");  // the connection will be closed after completion of the response
+    stream->println(F("HTTP/1.1 200/OK"));
+    stream->println(F("Access-Control-Allow-Origin: * "));
+    stream->println(F("Content-Type: text/plain"));
+    stream->println(F("Connection: close"));  // the connection will be closed after completion of the response
     stream->println();
 }
 

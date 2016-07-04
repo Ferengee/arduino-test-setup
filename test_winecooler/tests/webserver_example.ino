@@ -21,7 +21,7 @@
 #include <Ethernet.h>
 
 #include <Schedulers.h>
-#include "lib.c"
+#include "aggregating_log/aggregating_log.h"
 #include "server/server.h"
 #include "handler/handler.h"
 

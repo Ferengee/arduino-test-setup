@@ -1,5 +1,5 @@
 #include <Schedulers.h>
-#include "lib.c"
+#include "aggregating_log/aggregating_log.h"
 
 #define LINK_COUNT 3
 

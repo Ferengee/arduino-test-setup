@@ -1,6 +1,6 @@
-#ifndef _LIB_H
-#define _LIB_H
-
+#ifndef _AGGREGATING_LOG_H
+#define _AGGREGATING_LOG_H
+ 
 #include <Arduino.h>
 #include <stdint.h>
 

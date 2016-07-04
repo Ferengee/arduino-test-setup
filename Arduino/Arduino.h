@@ -20,6 +20,7 @@
 #define max(a,b) (((a)>(b))?(a):(b))
 
 #define log(message) printf("(%lu) %s\n", uptime(), message )
+#define F(s) s
 
 using namespace std;
 
