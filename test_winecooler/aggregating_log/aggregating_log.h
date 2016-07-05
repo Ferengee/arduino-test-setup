@@ -29,6 +29,7 @@ public:
   };
   void sample(){
     if (log != NULL){
+      delay(10);
       analogRead(pin);
       delay(10);
       log->add(analogRead(pin));

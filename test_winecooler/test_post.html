@@ -39,10 +39,11 @@ app.controller('LineCtrl', function ($scope) {
       scales: {
         yAxes: [
           {
-            id: 'y-axis-1',
-            type: 'linear',
-            display: true,
-            position: 'left'
+            ticks: {
+                    max: 1024,
+                    min: 0,
+                    stepSize: 0.5
+                }
           },
           {
             id: 'y-axis-2',
@@ -78,6 +79,7 @@ function updateChart(data){
             scales: {
                 yAxes: [{
                     ticks: {
+                        max: 1024,
                         beginAtZero:true
                     }
                 }],
@@ -86,7 +88,7 @@ function updateChart(data){
                   position: 'bottom',
                   ticks: {
                       min: 1,
-                      max: 1000
+                      max: 10000
                   }
               }]
             }
@@ -97,9 +99,9 @@ function updateChart(data){
 
 app.controller('SendCtrl', function ($http, $scope) {
   $scope.clickReceive = function(){
-    $http.get("http://localhost:8080/variable/0").then( function(d){
+    $http.get("http://localhost:8080/sensor/1").then( function(d){
       console.log("d:" , d);
-      var flattend = d.data.temp.reduce(function(acc, item){ return acc.concat(item)},[]);
+      var flattend = d.data.reduce(function(acc, item){ return acc.concat(item)},[]);
       var x = 1;
       data = flattend.map(function(sample){
         x = x * 3; 
@@ -108,13 +110,16 @@ app.controller('SendCtrl', function ($http, $scope) {
       console.log(data);
       updateChart(data);
     });
+
+    $http.get("http://localhost:8080/variable/" + $scope.instance).then( function(d){
+      $scope.value = d.data;
+    });
+
   };
 
   $scope.clickSend = function(){
-    console.log("click");
-    var value = 235;
     $http.defaults.headers.post["Content-Type"] = "text/plain";
-    $http.post("http://localhost:8080/variable/3", value);
+    $http.post("http://localhost:8080/variable/" + $scope.instance, $scope.value);
   };
 });
 </script>
@@ -130,6 +135,9 @@ chart-dataset-override="datasetOverride" chart-click="onClick">
 </div>
 
 <p ng-controller="SendCtrl">
+  <input ng-model="instance">
+  <input ng-model="value">
+
   <button ng-click="clickSend()">send</button>
 
   <button ng-click="clickReceive()">receive</button>

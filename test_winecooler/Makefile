@@ -2,7 +2,7 @@ libs =
 gccflags = -Wall -fpermissive -g
 cc = g++ --std=c++11
 
-include_paths = ../Arduino . ../Arduino/libraries/Schedulers ../Mocks
+include_paths = ../Arduino . ../Arduino/libraries/Schedulers ../Arduino/libraries/Relay ../Mocks
 includes =$(foreach d, $(include_paths), -I$d)
 
 all: test_scheduler webserver_example
@@ -26,6 +26,10 @@ MockStream.o: ../Mocks/MockStream.cpp
 
 ZmqStream.o: ../Mocks/ZmqStream.cpp
 	$(cc) $(gccflags) -c ../Mocks/ZmqStream.cpp -o ZmqStream.o $(includes) 
+
+Relay.o: ../Arduino/libraries/Relay/Relay.cpp
+	$(cc) $(gccflags) -c ../Arduino/libraries/Relay/Relay.cpp -o Relay.o $(includes) $(libs)
+
 
 
 test: test_log test_handler test_server
@@ -55,8 +59,8 @@ MockEthernet.o: ../Mocks/Ethernet.cpp ../Mocks/Ethernet.h
 test_zmq_stream: tests/test_zmq_stream.cpp ZmqStream.o DummySerial.o
 	$(cc) $(gccflags) tests/test_zmq_stream.cpp -o test_zmq_stream ZmqStream.o DummySerial.o $(includes) -lzmq
 
-webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o ZmqStream.o MockEthernet.o Schedulers.o server.o handler.o aggregating_log.o
-	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o ZmqStream.o MockEthernet.o Schedulers.o server.o handler.o aggregating_log.o $(includes) -lzmq
+webserver_example: tests/webserver_example.cpp tests/webserver_example.ino DummySerial.o Arduino.o ZmqStream.o MockEthernet.o Schedulers.o Relay.o server.o handler.o aggregating_log.o
+	$(cc) $(gccflags) tests/webserver_example.cpp -o webserver_example DummySerial.o Arduino.o ZmqStream.o MockEthernet.o Schedulers.o Relay.o server.o handler.o aggregating_log.o $(includes) -lzmq
 
 test_log: tests/test_log.cpp aggregating_log.o
 	$(cc) $(gccflags) tests/test_log.cpp aggregating_log.o -o test_log  $(includes) $(libs)
