@@ -1,0 +1,33 @@
+## knock once
+listening-KNOCK->maybeGreen
+maybeGreen-GO->green
+green-LISTEN->listening
+
+## knock twice
+#   listening-KNOCK->maybeGreen
+maybeGreen-KNOCK->maybeRed
+maybeRed-GO->red
+red-LISTEN->listening
+
+## knock three times
+#   listening-KNOCK->maybeGreen
+#   maybeGreen-KNOCK->maybeRed
+maybeRed-KNOCK->maybePlayRecorded
+maybePlayRecorded-GO->playRecorded
+playRecorded-LISTEN->listening
+
+## functions
+#   confirm the knock, reset the knock timer 
+maybeGreen:confirmKnock
+maybeRed:confirmKnock
+maybePlayRecorded:confirmKnock
+
+# control traffic light state
+green:lightGreen
+red:lightRed
+playRecorded:lightPlayRecorded
+
+# machines
+machine(listening)
+
+
