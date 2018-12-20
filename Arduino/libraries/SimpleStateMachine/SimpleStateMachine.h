@@ -1,3 +1,6 @@
+#ifndef SimpleStateMachine_h
+#define SimpleStateMachine_h
+
 #include <Arduino.h>
 #include <EventChannel.h>
 
@@ -55,3 +58,5 @@ public:
   void stop(){started = false;}
   virtual bool receive(int token, void * data);
 };
+
+#endif

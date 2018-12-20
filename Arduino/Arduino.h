@@ -22,6 +22,9 @@
 #define log(message) printf("(%lu) %s\n", uptime(), message )
 #define F(s) s
 
+#define F_CPU 10000
+#define PROGMEM
+
 using namespace std;
 
 enum {INPUT, OUTPUT, INPUT_PULLUP};
