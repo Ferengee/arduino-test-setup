@@ -13,19 +13,45 @@ red-LISTEN->listening
 #   listening-KNOCK->maybeGreen
 #   maybeGreen-KNOCK->maybeRed
 maybeRed-KNOCK->maybePlayRecorded
-maybePlayRecorded-GO->playRecorded
-playRecorded-LISTEN->listening
+maybePlayRecorded-GO->autoGreen
+
+## knock four times
+#   listening-KNOCK->maybeGreen
+#   maybeGreen-KNOCK->maybeRed
+#   maybeRed-KNOCK->maybePlayRecorded
+maybePlayRecorded-KNOCK->maybePlayMorse
+maybePlayMorse-GO->playMorse
+playMorse-LISTEN->listening
+
+## automatic light change
+# confirmKnock has to stop ProgressTimer
+# ProgressTimer must be reset in enterfuncs for auto states
+autoRed-KNOCK->listening
+autoYellow-KNOCK->listening
+autoGreen-KNOCK->listening
+
+autoGreen-PROGRESS->autoYellow
+autoYellow-PROGRESS->autoRed
+autoRed-PROGRESS->autoGreen
+
 
 ## functions
 #   confirm the knock, reset the knock timer 
 maybeGreen:confirmKnock
 maybeRed:confirmKnock
 maybePlayRecorded:confirmKnock
+maybePlayMorse:confirmKnock
+
 
 # control traffic light state
 green:lightGreen
 red:lightRed
-playRecorded:lightPlayRecorded
+playMorse:lightPlayMorse
+
+autoRed:lightRedAndResetTimer
+autoYellow:lightYellowAndResetTimer
+autoGreen:lightGreenAndResetTimer
+
 
 # machines
 machine(listening)

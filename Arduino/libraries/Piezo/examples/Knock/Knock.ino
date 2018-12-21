@@ -47,22 +47,28 @@ LightMorseOutput out(&speaker, &light);
 MorseCode m(&out);
 
 
-State listening, maybeGreen, green, maybeRed, red, maybePlayRecorded, playRecorded;
+State listening, maybeGreen, green, maybeRed, red, maybePlayRecorded, autoGreen, maybePlayMorse, playMorse, autoRed, autoYellow;
+
 Machine machine = Machine(listening);
-enum TransitionEvents {KNOCK, GO, LISTEN};
+enum TransitionEvents {KNOCK, GO, LISTEN, PROGRESS};
 
 Scheduler knockDoneTimer;
 Scheduler blinkTimer;
-
-
+Scheduler progressTimer;
 
 void emitGo(void * data){
   light.off();
   machine.receive(GO, NULL);
 }
 
+void emitProgress(void * data){
+  light.off();
+  machine.receive(PROGRESS, NULL);
+}
+
 void confirmKnock(int token, void * data){
   blinkTimer.stop();
+  progressTimer.stop();
   light.on(YELLOW);
   knockDoneTimer.once(600, emitGo, NULL);
 }
@@ -77,15 +83,40 @@ void lightRed(int token, void * data){
   machine.receive(LISTEN, NULL);
 }
 
-void lightPlayRecorded(int token, void * data){
+void lightGreenAndResetTimer(int token, void * data){
+  light.on(GREEN);
+  progressTimer.once(light.uptimeSecondsGreen *  1000, emitProgress, NULL);
+  machine.receive(LISTEN, NULL);
+}
+void lightYellowAndResetTimer(int token, void * data){
+  light.on(YELLOW);
+  progressTimer.once(2000, emitProgress, NULL);
+
+  machine.receive(LISTEN, NULL);
+}
+void lightRedAndResetTimer(int token, void * data){
+  light.on(RED);
+  progressTimer.once(light.uptimeSecondsRed * 1000, emitProgress, NULL);
+
+  machine.receive(LISTEN, NULL);
+}
+
+void lightPlayRecorded(int token, void * data){  
+  machine.receive(PROGRESS, NULL);
+}
+
+const char sig[] PROGMEM = {"bme"};
+
+void lightPlayMorse(int token, void * data){
   knockSensor.disable();
   speaker.enable();
-  auto sig = "bme";
+  
   char base = 'c';
-  for(int i =0; sig[i] != '\0'; i++){
-    auto note = sig[i] - base;
+  for(int i =0; i < strlen_P(sig); i++){
+    auto c = pgm_read_byte_near(sig + i);
+    auto note = c - base;
     speaker.note(note, 4);
-    m.send(sig[i]);  
+    m.send(c);  
   }
   speaker.disable();
   knockSensor.enable();
@@ -123,5 +154,6 @@ void loop(){
   knockSensor.sample();
   knockDoneTimer.trigger();
   blinkTimer.trigger();
+  progressTimer.trigger();
   delay(10);
 }
